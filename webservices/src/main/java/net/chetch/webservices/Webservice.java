@@ -20,25 +20,25 @@ public class Webservice<S> {
 
 
     public Class<S> serviceClass;
-    public List<TypeAdapter> typeAdapters;
+    public List<Class<TypeAdapter>> typeAdapterClasses;
     public S service;
     private String apiBaseURL;
 
-    public Webservice(Class<S> serviceClass, List<TypeAdapter> typeAdapters){
+    public Webservice(Class<S> serviceClass, List<Class<TypeAdapter>> typeAdapterClasses){
         this.serviceClass = serviceClass;
 
-        this.typeAdapters = typeAdapters;
+        this.typeAdapterClasses = typeAdapterClasses;
     }
 
     public Webservice(Class<S> serviceClass){
         this.serviceClass = serviceClass;
     }
 
-    public Webservice(Class<S> serviceClass, TypeAdapter typeAdapter){
+    public Webservice(Class<S> serviceClass, Class<TypeAdapter> typeAdapterClass){
         this.serviceClass = serviceClass;
 
-        typeAdapters = new ArrayList<>();
-        typeAdapters.add(typeAdapter);
+        typeAdapterClasses = new ArrayList<>();
+        typeAdapterClasses.add(typeAdapterClass);
     }
 
     public S setAPIBaseURL(String apiBaseURL) throws Exception{

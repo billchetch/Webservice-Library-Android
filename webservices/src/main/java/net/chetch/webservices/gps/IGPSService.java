@@ -1,8 +1,10 @@
 package net.chetch.webservices.gps;
 
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface IGPSService {
-    String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss Z";
-    String DATE_ONLY_FORMAT = "yyyy-MM-dd Z";
-    String USER_AGENT = "ChetchAndroidWebservice";
+    @GET("latest-position")
+    Call<GPSPosition> getLatestPosition();
 }

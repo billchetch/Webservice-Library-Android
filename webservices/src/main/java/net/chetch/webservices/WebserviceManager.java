@@ -2,14 +2,12 @@ package net.chetch.webservices;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 
 import net.chetch.utilities.CalendarTypeAdapater;
 import net.chetch.utilities.DelegateTypeAdapterFactory;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -44,8 +42,11 @@ public class WebserviceManager {
         OkHttpClient client = httpClient.build();
 
         DelegateTypeAdapterFactory delegateTypeAdapterFactory = new DelegateTypeAdapterFactory();
-
-        //delegateTypeAdapterFactory.addTypeAdapater(ForecastTypeAdapater.class);
+        if(ws.typeAdapterClasses != null) {
+            for(Class c : ws.typeAdapterClasses){
+                delegateTypeAdapterFactory.addTypeAdapater(c);
+            }
+        }
 
         Gson gson = new GsonBuilder()
                 .setDateFormat(ws.dateFormat)
