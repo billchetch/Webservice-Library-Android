@@ -49,7 +49,7 @@ public class WebserviceRepository<S> {
 
             //wait a certain time and then reset the serviceAvailable to try again
             serviceLastAvailable = Calendar.getInstance();
-            serviceErrorMessage = "Service unreachable due to " + t.getClass().getName();
+            serviceErrorMessage = "Employee unreachable due to " + t.getClass().getName();
 
         }
 
