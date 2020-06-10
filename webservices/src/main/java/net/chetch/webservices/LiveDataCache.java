@@ -3,7 +3,10 @@ package net.chetch.webservices;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LiveDataCache {
     static public int NO_CACHE = 0;
@@ -51,6 +54,10 @@ public class LiveDataCache {
             valueLastUpdated = System.currentTimeMillis();
             Log.i("CacheEntry", "Updated value for " + key);
         }
+
+        public void refreshOnNextCall(){
+            this.valueLastUpdated = -1;
+        }
     }
 
     public LiveDataCache(){
@@ -77,5 +84,30 @@ public class LiveDataCache {
 
     public <T> CacheEntry getCacheEntry(String key){
         return this.<T>getCacheEntry(key, defaultCacheTime);
+    }
+
+    public void setRefreshOnNextCall(List<String> keys, boolean include){
+        for(Map.Entry <String, CacheEntry> entry : cache.entrySet()){
+            if(keys == null || (keys.contains(entry.getKey()) ? include : !include)){
+                entry.getValue().refreshOnNextCall();
+            }
+        }
+    }
+
+    public boolean setRefreshOnNextCall(String key){
+        if(cache.containsKey(key)){
+            cache.get(key).refreshOnNextCall();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setRefreshOnNextCall(String ... keys){
+        setRefreshOnNextCall(Arrays.asList(keys), true);
+    }
+
+    public void refreshOnNextCall(){
+        setRefreshOnNextCall(null, true);
     }
 }
