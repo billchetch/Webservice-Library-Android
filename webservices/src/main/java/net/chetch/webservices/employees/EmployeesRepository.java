@@ -11,7 +11,6 @@ import net.chetch.webservices.gps.IGPSService;
 
 import java.util.List;
 
-
 public class EmployeesRepository extends WebserviceRepository<IEmployeesService> {
 
     public EmployeesRepository() {
