@@ -47,9 +47,18 @@ public class Webservice<S> {
         return service;
     }
 
-    public <T> WebserviceCallback createCallback(MutableLiveData liveDataError, MutableLiveData<T> liveDataResponse){
+    public String getAPIBaseURL(){
+        return this.apiBaseURL;
+    }
 
-        return new WebserviceCallback<T>(liveDataError, liveDataResponse);
+    public WebserviceCallback createCallback(MutableLiveData liveDataError, MutableLiveData liveDataResponse){
+
+        return new WebserviceCallback(liveDataError, liveDataResponse);
+    }
+
+    public WebserviceCallback createCallback(MutableLiveData liveDataError, LiveDataCache.CacheEntry cacheEntry){
+
+        return new WebserviceCallback(liveDataError, cacheEntry);
     }
 
 }

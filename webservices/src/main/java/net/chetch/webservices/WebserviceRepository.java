@@ -9,9 +9,14 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
+import java.util.HashMap;
+
+import okhttp3.Cache;
 
 public class WebserviceRepository<S> {
-    public static final int ERROR_SERVICE_UNREACHABLE = 4;
+
+
+    static public final int ERROR_SERVICE_UNREACHABLE = 4;
 
 
     protected final MutableLiveData<Throwable> liveDataServiceError = new MutableLiveData<>();
@@ -25,12 +30,28 @@ public class WebserviceRepository<S> {
     private int serviceErrorCode;
     private String serviceErrorMessage;
 
-    public WebserviceRepository(Webservice<S> webservice){
+    public LiveDataCache cache = new LiveDataCache();
+
+    public WebserviceRepository(Webservice<S> webservice, int defaultCacheTime){
         this.webservice = webservice;
 
         liveDataServiceError.observeForever(t->{
             handleServiceError(t);
         });
+
+        setDefaultCacheTime(defaultCacheTime);
+    }
+
+    public WebserviceRepository(Webservice<S> webservice){
+        this(webservice, LiveDataCache.SHORT_CACHE);
+    }
+
+    public WebserviceRepository(Class<S> s, int defaultCacheTime){
+        this(new Webservice(s), defaultCacheTime);
+    }
+
+    public WebserviceRepository(Class<S> s){
+        this(new Webservice(s));
     }
 
     public LiveData<Throwable> getError(){
@@ -79,7 +100,19 @@ public class WebserviceRepository<S> {
         service = webservice.setAPIBaseURL(apiBaseURL);
     }
 
-    public <T> WebserviceCallback createCallback(MutableLiveData<T> liveDataResponse){
+    public String getAPIBaseURL(){
+        return webservice.getAPIBaseURL();
+    }
+
+    public WebserviceCallback createCallback(MutableLiveData liveDataResponse){
         return webservice.createCallback(liveDataServiceError, liveDataResponse);
+    }
+
+    public WebserviceCallback createCallback(LiveDataCache.CacheEntry cacheEntry){
+        return webservice.createCallback(liveDataServiceError, cacheEntry);
+    }
+
+    public void setDefaultCacheTime(int cacheTime){
+        cache.setDefaultCacheTime(cacheTime);
     }
 }

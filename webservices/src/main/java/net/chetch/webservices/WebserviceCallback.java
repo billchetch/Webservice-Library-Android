@@ -11,11 +11,17 @@ import retrofit2.Response;
 public class WebserviceCallback<T> implements Callback<T> {
 
     private MutableLiveData<Throwable> liveDataError;
-    private MutableLiveData<T> liveDataResponse;
+    private MutableLiveData<T> liveDataResponse = null;
+    private LiveDataCache.CacheEntry cacheEntry = null;
 
     public WebserviceCallback(MutableLiveData<Throwable> liveDataError, MutableLiveData<T> liveDataResponse){
         this.liveDataError = liveDataError;
         this.liveDataResponse = liveDataResponse;
+    }
+
+    public WebserviceCallback(MutableLiveData<Throwable> liveDataError, LiveDataCache.CacheEntry cacheEntry){
+        this.liveDataError = liveDataError;
+        this.cacheEntry = cacheEntry;
     }
 
     public Throwable getLastError(){
@@ -43,6 +49,9 @@ public class WebserviceCallback<T> implements Callback<T> {
     }
 
     public void handleResponse(Call<T> call, Response<T> response){
+        if(cacheEntry != null){
+            cacheEntry.updateValue(response.body());
+        }
         if(liveDataResponse != null){
             liveDataResponse.setValue(response.body());
         }
