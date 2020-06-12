@@ -3,6 +3,7 @@ package net.chetch.webservices.employees;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
+import net.chetch.webservices.DataObjectCollection;
 import net.chetch.webservices.LiveDataCache;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceCallback;
@@ -21,15 +22,18 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         super(IEmployeesService.class, defaultCacheTime);
     }
 
-    public void addEmployee(Employee employee){
+    public LiveData<Employee> addEmployee(Employee employee){
+        final MutableLiveData<Employee> liveDataEmployee = new MutableLiveData<>();
 
-        service.putEmployee(employee, employee.getID());
+        service.putEmployee(employee, employee.getID()).enqueue(createCallback(liveDataEmployee));
 
-        if(cache.setRefreshOnNextCall("employees"))getEmployees();
-        if(cache.setRefreshOnNextCall("active-employees"))getActiveEmployees();
+        cache.setRefreshOnNextCall("employees");
+        cache.setRefreshOnNextCall("active-employees");
+
+        return liveDataEmployee;
     }
 
-    public LiveData<List<Employee>> getActiveEmployees(){
+    public LiveData<DataObjectCollection<Employee>> getActiveEmployees(){
         LiveDataCache.CacheEntry entry = cache.<List<Employee>>getCacheEntry("active-employees");
 
         if(entry.refreshValue()) {
@@ -39,7 +43,7 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         return entry.liveData;
     }
 
-    public LiveData<List<Employee>> getEmployees(){
+    public LiveData<DataObjectCollection<Employee>> getEmployees(){
         LiveDataCache.CacheEntry entry = cache.<List<Employee>>getCacheEntry("employees");
 
         if(entry.refreshValue()) {

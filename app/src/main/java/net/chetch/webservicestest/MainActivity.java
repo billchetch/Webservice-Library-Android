@@ -1,5 +1,6 @@
 package net.chetch.webservicestest;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import net.chetch.utilities.Utils;
+import net.chetch.webservices.DataObjectCollection;
 import net.chetch.webservices.LiveDataCache;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
@@ -19,6 +21,9 @@ import net.chetch.webservices.employees.IEmployeesService;
 import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
 import net.chetch.utilities.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,21 +59,31 @@ public class MainActivity extends AppCompatActivity {
             apiBaseURL = "http://192.168.43.123:8004/api/";
             employeesRepository.setAPIBaseURL(apiBaseURL);
 
-            employeesRepository.getActiveEmployees().observe(this, emps->{
+            employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
-                Log.i("Main","Employees received 1: " + emps.size());
+
+                DataObjectCollection<Employee>.FieldMap<String> empsMap = Employee.employeeIDMap(Employee.active(emps));
+                Log.i("Main", "Finished");
             });
 
-            employeesRepository.getActiveEmployees().observe(this, emps->{
+            /*employeesRepository.g().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv2)).setText("ER2: " + emps.size() + " " + System.currentTimeMillis());
                 Log.i("Main","Employees received 2: " + emps.size());
-            });
+            });*/
 
             Button btn = findViewById(R.id.button);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    employeesRepository.getActiveEmployees();
+                    Employee emp = new Employee();
+                    emp.setFirstName("Croll");;
+                    emp.setPositionID(1);
+                    emp.setLastName("Crallxx" + Math.random());
+                    emp.setEmployeeID("88300" + Math.random());
+                    employeesRepository.addEmployee(emp).observe(MainActivity.this, employee->{
+                        employeesRepository.getEmployees();
+                    });
+
                 }
             });
 

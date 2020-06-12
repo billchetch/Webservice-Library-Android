@@ -18,18 +18,18 @@ public class WebserviceException extends Exception {
     }
 
     public static WebserviceException create(Response<?> response){
-        WebserviceException sfex = null;
+        WebserviceException wsex = null;
         String errorBody = null;
         try {
             errorBody = response.errorBody().string();
             Gson gson = new GsonBuilder().create();
             ErrorResponse errorResponse = gson.fromJson(errorBody, ErrorResponse.class);
-            sfex = new WebserviceException(errorResponse.message, errorResponse.errorCode, response.code());
+            wsex = new WebserviceException(errorResponse.message, errorResponse.errorCode, response.code());
         } catch (Exception e) {
-            errorBody = "SurfForecastException.create : " + e.getMessage();
-            sfex = new WebserviceException(errorBody, 0, response.code());
+            errorBody = "WebserviceException.create : " + e.getMessage();
+            wsex = new WebserviceException(errorBody, 0, response.code());
         }
-        return sfex;
+        return wsex;
     }
 
     public static WebserviceException create(String serviceID, Response<?> response, int errorCode){
