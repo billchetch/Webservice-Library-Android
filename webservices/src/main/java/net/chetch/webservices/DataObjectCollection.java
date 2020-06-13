@@ -76,7 +76,7 @@ public class DataObjectCollection<D extends DataObject> extends ArrayList<D> {
         }
     }
 
-    public void populateFilterResults(DataObjectCollection<D> filtered, List<FilterCriteria> criteria){
+    public DataObjectCollection<D> populateFilterResults(DataObjectCollection<D> filtered, List<FilterCriteria> criteria){
         List<FilterCriteria> criteria2match = null;
         for(D dataObject : this){
             if(fields == null){
@@ -96,6 +96,17 @@ public class DataObjectCollection<D extends DataObject> extends ArrayList<D> {
                 }
             }
         }
+        return filtered;
+    }
+
+    public DataObjectCollection<D> populateFilterResults(DataObjectCollection<D> filtered, FilterCriteria criteria){
+        List<FilterCriteria> fcs = new ArrayList<>();
+        fcs.add(criteria);
+        return populateFilterResults(filtered, fcs);
+    }
+
+    public DataObjectCollection<D> populateFilterResults(DataObjectCollection<D> filtered, String fieldName, Object fieldValue){
+        return populateFilterResults(filtered, new FilterCriteria(fieldName, fieldValue));
     }
 
     public DataObjectCollection<D> filter(List<FilterCriteria> criteria){

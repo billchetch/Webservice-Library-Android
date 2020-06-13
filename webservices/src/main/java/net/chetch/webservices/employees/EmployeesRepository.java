@@ -33,8 +33,19 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         return liveDataEmployee;
     }
 
-    public LiveData<DataObjectCollection<Employee>> getActiveEmployees(){
-        LiveDataCache.CacheEntry entry = cache.<List<Employee>>getCacheEntry("active-employees");
+    public LiveData<Integer> removeEmployee(int id){
+        final MutableLiveData<Integer> liveDataID = new MutableLiveData<>();
+
+        service.deleteEmployee(id).enqueue(createCallback(liveDataID));
+
+        cache.setRefreshOnNextCall("employees");
+        cache.setRefreshOnNextCall("active-employees");
+
+        return liveDataID;
+    }
+
+    public LiveData<Employees> getActiveEmployees(){
+        LiveDataCache.CacheEntry entry = cache.<Employees>getCacheEntry("active-employees");
 
         if(entry.refreshValue()) {
             service.getActiveEmployees(0).enqueue(createCallback(entry));
@@ -43,8 +54,8 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         return entry.liveData;
     }
 
-    public LiveData<DataObjectCollection<Employee>> getEmployees(){
-        LiveDataCache.CacheEntry entry = cache.<List<Employee>>getCacheEntry("employees");
+    public LiveData<Employees> getEmployees(){
+        LiveDataCache.CacheEntry entry = cache.<Employees>getCacheEntry("employees");
 
         if(entry.refreshValue()) {
             service.getEmployees(0).enqueue(createCallback(entry));
@@ -52,4 +63,6 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
 
         return entry.liveData;
     }
+
+
 }

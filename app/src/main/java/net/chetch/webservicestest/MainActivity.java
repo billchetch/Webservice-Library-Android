@@ -16,6 +16,7 @@ import net.chetch.webservices.LiveDataCache;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
 import net.chetch.webservices.employees.Employee;
+import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.employees.EmployeesRepository;
 import net.chetch.webservices.employees.IEmployeesService;
 import net.chetch.webservices.gps.GPSRepository;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     NetworkRepository networkRepository = new NetworkRepository();
     GPSRepository gpsRepository = new GPSRepository();
     EmployeesRepository employeesRepository = new EmployeesRepository(LiveDataCache.VERY_SHORT_CACHE);
+    int employeeID;
 
     protected LiveData<String> liveDataTest(){
         MutableLiveData<String> ldt = new MutableLiveData<>();
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
 
-                DataObjectCollection<Employee>.FieldMap<String> empsMap = Employee.employeeIDMap(Employee.active(emps));
+                Employees.FieldMap<String> empsMap = emps.active().employeeIDMap();
                 Log.i("Main", "Finished");
             });
 
@@ -81,6 +83,20 @@ public class MainActivity extends AppCompatActivity {
                     emp.setLastName("Crallxx" + Math.random());
                     emp.setEmployeeID("88300" + Math.random());
                     employeesRepository.addEmployee(emp).observe(MainActivity.this, employee->{
+                        ((TextView)findViewById(R.id.tv2)).setText(employee.getEmployeeID());
+                        employeeID = employee.getID();
+                        employeesRepository.getEmployees();
+                    });
+
+                }
+            });
+
+            btn = findViewById(R.id.button2);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    employeesRepository.removeEmployee(employeeID).observe(MainActivity.this, eid->{
+                        Log.i("Main", "Delete employees");
                         employeesRepository.getEmployees();
                     });
 

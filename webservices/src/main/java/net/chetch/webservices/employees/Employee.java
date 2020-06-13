@@ -5,22 +5,6 @@ import net.chetch.webservices.DataObjectCollection;
 
 public class Employee extends DataObject {
 
-    static public DataObjectCollection<Employee> active(boolean active, DataObjectCollection<Employee> collection){
-        return collection.filter("active", active ? 1 : 0);
-    }
-
-    static public DataObjectCollection<Employee> active(DataObjectCollection<Employee> collection){
-        return active(true, collection);
-    }
-
-    static public DataObjectCollection<Employee>.FieldMap<String> employeeIDMap(DataObjectCollection<Employee> collection){
-        try {
-            return collection.asFieldMap("employee_id");
-        } catch (Exception e){
-            return null;
-        }
-    }
-
     private String employee_id;
     private String first_name;
     private String last_name;
