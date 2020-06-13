@@ -1,6 +1,6 @@
 package net.chetch.webservices;
 
-public class DataObject {
+abstract public class DataObject {
     protected int id;
 
     public int getID(){ return id; }

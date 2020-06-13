@@ -4,8 +4,12 @@ import net.chetch.webservices.DataObjectCollection;
 
 public class Employees extends DataObjectCollection<Employee> {
 
+    public Employees(){
+        super(Employees.class);
+    }
+
     public Employees active(boolean active){
-        return (Employees)populateFilterResults(new Employees(), "active", active ? 1 : 0);
+        return filter("active", active ? 1 : 0);
     }
 
     public Employees active(){

@@ -64,7 +64,12 @@ public class MainActivity extends AppCompatActivity {
             employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
 
-                Employees.FieldMap<String> empsMap = emps.active().employeeIDMap();
+                Employees.SortOn s = emps.createSortOn();
+                s.put("last_name", DataObjectCollection.SortOptions.ASC);
+                s.put("first_name", DataObjectCollection.SortOptions.DESC);
+
+                emps.sort(s).limit(5);
+
                 Log.i("Main", "Finished");
             });
 
