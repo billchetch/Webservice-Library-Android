@@ -289,7 +289,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
     public <C extends DataObjectCollection<D>> C limit(int start, int size){
         C limited = createCollection();
 
-        for(int i = start; i < start + Math.max(size(), start + size); i++){
+        for(int i = start; i < start + Math.min(size(), start + size); i++){
             limited.add(get(i));
         }
         return limited;
