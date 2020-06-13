@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import net.chetch.utilities.Utils;
 import net.chetch.webservices.DataObjectCollection;
 import net.chetch.webservices.LiveDataCache;
@@ -21,10 +24,9 @@ import net.chetch.webservices.employees.EmployeesRepository;
 import net.chetch.webservices.employees.IEmployeesService;
 import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
-import net.chetch.utilities.Utils;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,12 +66,6 @@ public class MainActivity extends AppCompatActivity {
             employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
 
-                Employees.SortOn s = emps.createSortOn();
-                s.put("last_name", DataObjectCollection.SortOptions.ASC);
-                s.put("first_name", DataObjectCollection.SortOptions.DESC);
-
-                emps.sort(s).limit(5);
-
                 Log.i("Main", "Finished");
             });
 
@@ -83,10 +79,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Employee emp = new Employee();
-                    emp.setFirstName("Croll");;
-                    emp.setPositionID(1);
-                    emp.setLastName("Crallxx" + Math.random());
-                    emp.setEmployeeID("88300" + Math.random());
+                    emp.set("first_name", "Croll");;
+                    emp.set("position_id", 1);
+                    emp.set("last_name", "Crallxx" + Math.random());
+                    emp.set("employee_id", "88300" + Math.random());
+
                     employeesRepository.addEmployee(emp).observe(MainActivity.this, employee->{
                         ((TextView)findViewById(R.id.tv2)).setText(employee.getEmployeeID());
                         employeeID = employee.getID();
