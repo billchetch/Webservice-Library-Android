@@ -17,6 +17,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
 
     public class FilterCriteria extends LinkedHashMap<String, Object>{
 
+
         public FilterCriteria(){
             super();
         }
@@ -24,12 +25,6 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         public FilterCriteria(String fieldName, Object fieldValue){
             super();
             put(fieldName, fieldValue);
-        }
-
-        public FilterCriteria(FilterCriteria criteria){
-            for(Map.Entry<String, Object> entry : criteria.entrySet()){
-                put(entry.getKey(), entry.getValue());
-            }
         }
 
 
@@ -68,8 +63,6 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
 
                 try {
                     comparison = dataObject1.compare(fieldName, dataObject2.getComparable(fieldName), nullIsLess);
-
-                    Log.i("Sort", "Comparing field " + fieldName + " on " + dataObject1.getCasted(fieldName) + "," + dataObject2.getCasted(fieldName) + " gives " + comparison);
                     if(comparison != 0){
                         comparison = comparison*(sortOptions == SortOptions.ASC ? 1 : -1);
                         break;
@@ -115,41 +108,76 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         return new SortOn();
     }
 
-    public void populateFilterResults(DataObjectCollection<D> filtered, List<FilterCriteria> criteria){
+    public void populateFilterResults(DataObjectCollection<D> filtered, List<FilterCriteria> criteria, boolean include){
         for(D dataObject : this){
+            boolean matched = false;
             for(FilterCriteria fc : criteria) {
                 if(fc.matches(dataObject)){
-                    filtered.add(dataObject);
-                    break;
+                    matched = true;
+                    if(include)break;
                 }
             }
+            if((matched && include) || (!matched && !include)){
+                filtered.add(dataObject);
+            }
         }
+
     }
 
-    public void populateFilterResults(DataObjectCollection<D> filtered, FilterCriteria criteria){
+    public void populateFilterResults(DataObjectCollection<D> filtered, FilterCriteria criteria, boolean include){
         List<FilterCriteria> fcs = new ArrayList<>();
         fcs.add(criteria);
-        populateFilterResults(filtered, fcs);
+        populateFilterResults(filtered, fcs, include);
     }
 
-    public void populateFilterResults(DataObjectCollection<D> filtered, String fieldName, Object fieldValue){
-        populateFilterResults(filtered, new FilterCriteria(fieldName, fieldValue));
+    public void populateFilterResults(DataObjectCollection<D> filtered, String fieldName, Object fieldValue, boolean include){
+        populateFilterResults(filtered, new FilterCriteria(fieldName, fieldValue), include);
     }
 
-    public <C extends DataObjectCollection<D>> C filter(List<FilterCriteria> criteria){
+
+    public <C extends DataObjectCollection<D>> C filter(List<FilterCriteria> criteria, boolean include){
         C dataObjectCollection = createCollection();
-        populateFilterResults(dataObjectCollection, criteria);
+        populateFilterResults(dataObjectCollection, criteria, include);
         return dataObjectCollection;
     }
 
-    public  <C extends DataObjectCollection<D>> C filter(FilterCriteria criteria){
-        List<FilterCriteria> fcs = new ArrayList<>();
-        fcs.add(criteria);
-        return filter(fcs);
+    public <C extends DataObjectCollection<D>> C filter(List<FilterCriteria> criteria){
+        return filter(criteria, true);
     }
 
-    public <C extends DataObjectCollection<D>> C filter(String fieldName, Object fieldValue){
-        return filter(new FilterCriteria(fieldName, fieldValue));
+    public  <C extends DataObjectCollection<D>> C filter(FilterCriteria criteria, boolean include){
+        List<FilterCriteria> fcs = new ArrayList<>();
+        fcs.add(criteria);
+        return filter(fcs, include);
+    }
+
+    public  <C extends DataObjectCollection<D>> C filter(FilterCriteria criteria) {
+        return filter(criteria, true);
+    }
+
+    public <C extends DataObjectCollection<D>> C filter(String fieldName, Object[] fieldValues, boolean include) {
+        List<FilterCriteria> criteria = new ArrayList<>();
+        for(Object fieldValue : fieldValues){
+            criteria.add(new FilterCriteria(fieldName, fieldValue));
+        }
+
+        return filter(criteria, true);
+    }
+
+    public <C extends DataObjectCollection<D>> C select(String fieldName, Object ... fieldValues){
+        return filter(fieldName, fieldValues,true);
+    }
+
+    public <C extends DataObjectCollection<D>> C exclude(String fieldName, Object ... fieldValues){
+        return filter(fieldName, fieldValues,false);
+    }
+
+    public <C extends DataObjectCollection<D>> C ids(Integer ... idValues){
+        return filter("id", idValues,true);
+    }
+
+    public <C extends DataObjectCollection<D>> C xids(Integer ... idValues){
+        return filter("id", idValues,false);
     }
 
     public <C extends DataObjectCollection<D>> C dirty() {

@@ -66,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
             employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
 
+                Employees e1 = emps.filter("known_as", "Kumis", "Oba");
+                Employees e2 = emps.exclude("first_name", "Andi");
+                Employees e3 = emps.ids(1,2,3,4,5);
+
                 Log.i("Main", "Finished");
             });
 
