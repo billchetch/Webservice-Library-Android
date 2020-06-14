@@ -10,9 +10,9 @@ import java.util.List;
 
 public class Webservice<S> {
 
-    public final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss Z";
-    public final String DEFAULT_DATE_ONLY_FORMAT = "yyyy-MM-dd Z";
-    public final String DEFAULT_USER_AGENT = "ChetchAndroidWebservice";
+    static public final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss Z";
+    static public final String DEFAULT_DATE_ONLY_FORMAT = "yyyy-MM-dd Z";
+    static public final String DEFAULT_USER_AGENT = "ChetchAndroidWebservice";
 
     public String dateFormat = DEFAULT_DATE_FORMAT;
     public String dateFormatOnly = DEFAULT_DATE_ONLY_FORMAT;

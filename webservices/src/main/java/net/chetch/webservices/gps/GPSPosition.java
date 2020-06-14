@@ -3,19 +3,15 @@ import java.util.Calendar;
 import net.chetch.webservices.DataObject;
 
 public class GPSPosition extends DataObject {
-    private double latitude;
-    private double longitude;
-    private Calendar updated;
-
     public double getLatitude() {
-        return latitude;
+        return getDouble("latitude");
     }
 
     public double getLongitude() {
-        return longitude;
+        return getDouble("longitude");
     }
 
     public Calendar getUpdated() {
-        return updated;
+        return getCalendar("updated");
     }
 }

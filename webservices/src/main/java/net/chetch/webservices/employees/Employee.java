@@ -16,4 +16,16 @@ public class Employee extends DataObject {
     public String getFullName(){
         return getString("full_name");
     }
+
+    @Override
+    public Object getCasted(String fieldName){
+        switch(fieldName){
+            case "position_id":
+            case "active":
+                return getInteger(fieldName);
+
+            default:
+                return super.getCasted(fieldName);
+        }
+    }
 }

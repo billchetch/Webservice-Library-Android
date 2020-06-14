@@ -9,14 +9,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 abstract public class DataObjectCollection<D extends DataObject> extends ArrayList<D> {
 
-    public class FilterCriteria extends HashMap<String, Object>{
-
-        public HashMap<String, Field> fields2match = new HashMap<>();
+    public class FilterCriteria extends LinkedHashMap<String, Object>{
 
         public FilterCriteria(){
             super();
@@ -33,35 +32,21 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
             }
         }
 
-        public FilterCriteria(FilterCriteria criteria, D dataObject, List<Field> fields){
-            this(criteria);
-
-            for(Field field : fields){
-                if(containsKey(field.getName())){
-                    fields2match.put(field.getName(), field);
-                }
-            }
-        }
 
         public boolean matches(D dataObject){
-            boolean matches = true;
             for(Map.Entry<String, Object> entry : entrySet()){
                 try {
-                    Object value1 = entry.getValue();
-                    Field field = fields2match.get(entry.getKey());
-                    Object value2 = field.get(dataObject);
-
-                    if(value1 != null && value2 == null){
-                        return false;
-                    } else if(!value1.equals(value2)){
+                    String fieldName = entry.getKey();
+                    Object value = entry.getValue();
+                    if(!dataObject.equals(fieldName, value)){
                         return false;
                     }
-                } catch(IllegalAccessException e){
-                    Log.e("DataObjectCollection", "Cannot access " + entry.getKey());
+                } catch(Exception e){
+                    Log.e("DataObjectCollection", "Matches exception on " + entry.getKey() + " " + e.getMessage());
                     return false;
                 }
             }
-            return matches;
+            return true;
         }
     } //end of FilterCriteria class
 
@@ -70,20 +55,8 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         DESC
     }
 
-    public class SortOn extends HashMap<String, SortOptions> implements Comparator<D> {
-        private HashMap<String, Field> fields2Compare = new HashMap<>();
-
-        public void setFieldsToCompareOn(List<Field> fields){
-            for(Map.Entry<String, SortOptions> entry : entrySet()){
-                String fieldName = entry.getKey();
-                for(Field field : fields){
-                    if(field.getName().equals(fieldName)){
-                        field.setAccessible(true);
-                        fields2Compare.put(fieldName, field);
-                    }
-                }
-            }
-        }
+    public class SortOn extends LinkedHashMap<String, SortOptions> implements Comparator<D> {
+        public boolean nullIsLess = true;
 
         @Override
         public int compare(D dataObject1, D dataObject2){
@@ -92,23 +65,11 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
             for(Map.Entry<String, SortOptions> entry : entrySet()){
                 SortOptions sortOptions = entry.getValue();
                 String fieldName = entry.getKey();
-                Field field = fields2Compare.get(fieldName);
 
                 try {
-                    Comparable v1 = (Comparable)field.get(dataObject1);
-                    Comparable v2 = (Comparable)field.get(dataObject2);
+                    comparison = dataObject1.compare(fieldName, dataObject2.getComparable(fieldName), nullIsLess);
 
-                    if(v1 == null && v2 == null) {
-                        comparison = 0;
-                    } else if(v1 == null) {
-                        comparison = -1;
-                    } else if(v2 == null){
-                        comparison = 1;
-                    } else {
-                        comparison = v1.compareTo(v2);
-                    }
-
-                    Log.i("Sort", "Comparing field " + fieldName + " on " + v1 + "," + v2 + " gives " + comparison);
+                    Log.i("Sort", "Comparing field " + fieldName + " on " + dataObject1.getCasted(fieldName) + "," + dataObject2.getCasted(fieldName) + " gives " + comparison);
                     if(comparison != 0){
                         comparison = comparison*(sortOptions == SortOptions.ASC ? 1 : -1);
                         break;
@@ -132,7 +93,6 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
 
     //instance methods and firelds
     Class collectionClass;
-    List<Field> fields = null;
 
     public <C extends DataObjectCollection> DataObjectCollection(Class<C> cls){
         collectionClass = cls;
@@ -155,43 +115,10 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         return new SortOn();
     }
 
-    protected void setFields(D dataObject){
-        List<Class> classes = new ArrayList<>();
-
-        Class c = dataObject.getClass();
-        do{
-            classes.add(c);
-            c = c.getSuperclass();
-        } while(DataObject.class.isAssignableFrom(c));
-
-
-        fields = new ArrayList<>();
-        for(Class cls : classes) {
-            Field[] fields2add = cls.getDeclaredFields();
-            for (Field field : fields2add) {
-                if(!fields.contains(field)) {
-                    field.setAccessible(true);
-                    fields.add(field);
-                }
-            }
-        }
-    }
-
     public void populateFilterResults(DataObjectCollection<D> filtered, List<FilterCriteria> criteria){
-        List<FilterCriteria> criteria2match = null;
         for(D dataObject : this){
-            if(fields == null){
-                setFields(dataObject);
-            }
-            if(criteria2match == null){
-                criteria2match = new ArrayList<>();
-                for(FilterCriteria fc : criteria) {
-                    criteria2match.add(new FilterCriteria(fc, dataObject, fields));
-                }
-            }
-
-            for(FilterCriteria c2m : criteria2match){
-                if(c2m.matches(dataObject)) {
+            for(FilterCriteria fc : criteria) {
+                if(fc.matches(dataObject)){
                     filtered.add(dataObject);
                     break;
                 }
@@ -225,26 +152,19 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         return filter(new FilterCriteria(fieldName, fieldValue));
     }
 
+    public <C extends DataObjectCollection<D>> C dirty() {
+        C dataObjectCollection = createCollection();
+        for(D dataObject : this){
+            if(dataObject.isDirty()){
+                dataObjectCollection.add(dataObject);
+            }
+        }
+        return dataObjectCollection;
+    }
 
     private <T> void populateFieldMap(FieldMap<T> fieldMap, String fieldName) throws Exception{
-        Field keyField = null;
-
         for(D dataObject : this){
-            if(fields == null){
-                setFields(dataObject);
-            }
-
-            if(keyField == null){
-                for(Field field : fields){
-                    if(field.getName().equals(fieldName)){
-                        keyField = field;
-                        break;
-                    }
-                }
-                if(keyField == null)throw new Exception("No field matches " + fieldName);
-            }
-
-            fieldMap.put((T)keyField.get(dataObject), dataObject);
+            fieldMap.put((T)dataObject.getCasted(fieldName), dataObject);
         }
     }
 
@@ -273,16 +193,9 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
     }
 
     public <C extends DataObjectCollection<D>> C sort(SortOn sortOn){
-        if(size() == 0)return (C)this;
-
-        if(fields == null){
-            setFields(get(0));
+        if(size() > 0) {
+            Collections.sort(this, sortOn);
         }
-
-        sortOn.setFieldsToCompareOn(fields);
-
-        Collections.sort(this, sortOn);
-
         return (C)this;
     }
 
