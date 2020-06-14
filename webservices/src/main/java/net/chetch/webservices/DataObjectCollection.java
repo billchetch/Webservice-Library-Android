@@ -164,7 +164,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         return filter(criteria, true);
     }
 
-    public <C extends DataObjectCollection<D>> C select(String fieldName, Object ... fieldValues){
+    public <C extends DataObjectCollection<D>> C filter(String fieldName, Object ... fieldValues){
         return filter(fieldName, fieldValues,true);
     }
 
