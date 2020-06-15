@@ -1,9 +1,14 @@
 package net.chetch.webservices.employees;
 
+import android.graphics.Bitmap;
+import android.media.Image;
+
 import net.chetch.webservices.DataObject;
 import net.chetch.webservices.DataObjectCollection;
 
 public class Employee extends DataObject {
+
+    public transient Bitmap profileImage;
 
     public String getEmployeeID(){
         return getString("employee_id");

@@ -34,10 +34,18 @@ abstract public class DataObject extends HashMap<String, String> {
     }
 
     public String getString(String fieldName){
-        return get(fieldName);
+        if(!containsKey(fieldName)){
+            return null;
+        } else {
+            return get(fieldName);
+        }
     }
 
     public Calendar getCalendar(String fieldName, String dateFormat){
+        if(!containsKey(fieldName)) {
+            return null;
+        }
+
         String dateString = get(fieldName);
         SimpleDateFormat f = new SimpleDateFormat(dateFormat);
         Calendar cal = Calendar.getInstance();
@@ -72,12 +80,16 @@ abstract public class DataObject extends HashMap<String, String> {
         put(fieldName, fieldValue.toString());
     }
 
+    public void unset(String fieldName){
+        oldValues.remove(fieldName);
+        remove(fieldName);
+    }
+
     public Integer getID(){ return (Integer)getCasted("id"); }
 
     public boolean isDirty(){
         return getID() == 0 || oldValues.size() > 0;
     }
-
 
     protected int compareNull(Object v1, Object v2, boolean nullIsLess) throws Exception {
         if(v1 == null && v2 == null){
