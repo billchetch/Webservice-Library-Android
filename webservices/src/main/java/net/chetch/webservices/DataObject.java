@@ -77,7 +77,7 @@ abstract public class DataObject extends HashMap<String, String> {
 
     public void set(String fieldName, Object fieldValue){
         oldValues.put(fieldName, get(fieldName));
-        put(fieldName, fieldValue.toString());
+        put(fieldName, fieldValue == null ? null : fieldValue.toString());
     }
 
     public void unset(String fieldName){

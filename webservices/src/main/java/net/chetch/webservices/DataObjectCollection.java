@@ -17,7 +17,6 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
 
     public class FilterCriteria extends LinkedHashMap<String, Object>{
 
-
         public FilterCriteria(){
             super();
         }
@@ -161,7 +160,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
             criteria.add(new FilterCriteria(fieldName, fieldValue));
         }
 
-        return filter(criteria, true);
+        return filter(criteria, include);
     }
 
     public <C extends DataObjectCollection<D>> C filter(String fieldName, Object ... fieldValues){
@@ -233,10 +232,24 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         for(int i = start; i < start + Math.min(size(), start + size); i++){
             limited.add(get(i));
         }
+
         return limited;
     }
 
     public <C extends DataObjectCollection<D>> C limit(int size){
         return limit(0, size);
+    }
+
+    public D get(String fieldName, Object fieldValue){
+        DataObjectCollection<D> filtered = filter(fieldName, fieldValue);
+        if(filtered.size() > 0){
+            return filtered.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public D id(int id){
+        return get("id", id);
     }
 }

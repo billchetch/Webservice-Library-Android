@@ -5,9 +5,16 @@ import android.arch.lifecycle.MutableLiveData;
 
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
+import net.chetch.webservices.employees.EmployeesRepository;
+
 import java.util.Calendar;
 
 public class GPSRepository extends WebserviceRepository<IGPSService>{
+
+    static private GPSRepository instance = null;
+    static public GPSRepository getInstance(){
+        return instance == null ? new GPSRepository() : instance;
+    }
 
     public GPSRepository() {
         super(new Webservice(IGPSService.class));

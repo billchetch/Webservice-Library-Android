@@ -14,6 +14,11 @@ import java.util.List;
 
 public class EmployeesRepository extends WebserviceRepository<IEmployeesService> {
 
+    static private EmployeesRepository instance = null;
+    static public EmployeesRepository getInstance(){
+        return instance == null ? new EmployeesRepository() : instance;
+    }
+
     public EmployeesRepository() {
         super(IEmployeesService.class);
     }

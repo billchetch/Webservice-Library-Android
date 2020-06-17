@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     NetworkRepository networkRepository = new NetworkRepository();
     GPSRepository gpsRepository = new GPSRepository();
-    EmployeesRepository employeesRepository = new EmployeesRepository(LiveDataCache.VERY_SHORT_CACHE);
+    EmployeesRepository employeesRepository = EmployeesRepository.getInstance();
     int employeeID;
 
     protected LiveData<String> liveDataTest(){
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        employeesRepository.setDefaultCacheTime(LiveDataCache.VERY_SHORT_CACHE);
         employeesRepository.getError().observe(this, t ->{
             Log.e("Main", t.getMessage());
         });
@@ -66,9 +67,7 @@ public class MainActivity extends AppCompatActivity {
             employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
 
-                Employees e1 = emps.filter("known_as", "Kumis", "Oba");
-                Employees e2 = emps.exclude("first_name", "Andi");
-                Employees e3 = emps.ids(1,2,3,4,5);
+                Employees e2 = emps.active().exclude("employee_id", "88005");
 
                 Log.i("Main", "Finished");
             });

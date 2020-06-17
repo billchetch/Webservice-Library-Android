@@ -1,6 +1,7 @@
 package net.chetch.webservices.employees;
 
 import net.chetch.webservices.DataObjectCollection;
+import net.chetch.webservices.WebserviceRepository;
 
 public class Employees extends DataObjectCollection<Employee> {
 

@@ -14,8 +14,6 @@ import java.util.HashMap;
 import okhttp3.Cache;
 
 public class WebserviceRepository<S> {
-
-
     static public final int ERROR_SERVICE_UNREACHABLE = 4;
 
 
