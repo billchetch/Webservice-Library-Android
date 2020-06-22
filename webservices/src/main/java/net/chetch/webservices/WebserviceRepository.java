@@ -142,7 +142,7 @@ public class WebserviceRepository<S> {
 
     public Calendar getServerTime(){
         Calendar now = Calendar.getInstance();
-        now.setTimeInMillis(now.getTimeInMillis() + serverTimeDifference);
+        now.setTimeInMillis(now.getTimeInMillis() - serverTimeDifference);
         return now;
     }
 
