@@ -67,14 +67,7 @@ public class MainActivity extends AppCompatActivity {
             apiBaseURL = "http://192.168.43.123:8004/api/";
             employeesRepository.setAPIBaseURL(apiBaseURL);
 
-            employeesRepository.getEmployees().observe(this, emps->{
-                ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
-
-                String sdn = Utils.formatDate(Calendar.getInstance(), Webservice.DEFAULT_DATE_FORMAT);
-                String ssn = Utils.formatDate(employeesRepository.getServerTime(), Webservice.DEFAULT_DATE_FORMAT);
-                Log.i("Main", "Device now is: " + sdn + ", server now is: " + ssn);
-                Employees e2 = emps.active().exclude("employee_id", "88005");
-
+            employeesRepository.getAbout().observe(this, about->{
                 Log.i("Main", "Finished");
             });
 

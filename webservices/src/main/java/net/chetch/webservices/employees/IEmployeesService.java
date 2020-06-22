@@ -2,6 +2,7 @@ package net.chetch.webservices.employees;
 
 
 
+import net.chetch.webservices.AboutService;
 import net.chetch.webservices.DataObjectCollection;
 
 import java.util.HashMap;
@@ -16,6 +17,9 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface IEmployeesService{
+    @GET("about")
+    Call<AboutService> getAbout();
+
     @GET("employees")
     Call<Employees> getEmployees(@Query("position_id") int positionID);
 

@@ -3,6 +3,7 @@ package net.chetch.webservices.employees;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
+import net.chetch.webservices.AboutService;
 import net.chetch.webservices.DataObjectCollection;
 import net.chetch.webservices.LiveDataCache;
 import net.chetch.webservices.Webservice;
@@ -25,6 +26,16 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
 
     public EmployeesRepository(int defaultCacheTime) {
         super(IEmployeesService.class, defaultCacheTime);
+    }
+
+    public LiveData<AboutService> getAbout(){
+        LiveDataCache.CacheEntry entry = cache.<Employees>getCacheEntry("about-service");
+
+        if(entry.refreshValue()) {
+            service.getAbout().enqueue(createCallback(entry));
+        }
+
+        return entry.liveData;
     }
 
     public LiveData<Employee> addEmployee(Employee employee){
