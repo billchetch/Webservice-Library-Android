@@ -13,6 +13,7 @@ public class Webservice<S> {
     static public final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss Z";
     static public final String DEFAULT_DATE_ONLY_FORMAT = "yyyy-MM-dd Z";
     static public final String DEFAULT_USER_AGENT = "ChetchAndroidWebservice";
+    static public final String HEADER_SERVER_TIME = "X-Server-Time";
 
     public String dateFormat = DEFAULT_DATE_FORMAT;
     public String dateFormatOnly = DEFAULT_DATE_ONLY_FORMAT;
@@ -51,14 +52,13 @@ public class Webservice<S> {
         return this.apiBaseURL;
     }
 
-    public WebserviceCallback createCallback(MutableLiveData liveDataError, MutableLiveData liveDataResponse){
-
-        return new WebserviceCallback(liveDataError, liveDataResponse);
+    public WebserviceCallback createCallback(MutableLiveData liveDataError, MutableLiveData liveDataResponse, MutableLiveData liveDataCallbackInfo){
+        return new WebserviceCallback(liveDataError, liveDataResponse, liveDataCallbackInfo);
     }
 
-    public WebserviceCallback createCallback(MutableLiveData liveDataError, LiveDataCache.CacheEntry cacheEntry){
+    public WebserviceCallback createCallback(MutableLiveData liveDataError, LiveDataCache.CacheEntry cacheEntry, MutableLiveData liveDataCallbackInfo){
 
-        return new WebserviceCallback(liveDataError, cacheEntry);
+        return new WebserviceCallback(liveDataError, cacheEntry, liveDataCallbackInfo);
     }
 
 }

@@ -24,6 +24,9 @@ import net.chetch.webservices.employees.EmployeesRepository;
 import net.chetch.webservices.employees.IEmployeesService;
 import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
+
+import java.util.Calendar;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -67,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
             employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv1)).setText("ER1: " + emps.size() + " " + System.currentTimeMillis());
 
+                String sdn = Utils.formatDate(Calendar.getInstance(), Webservice.DEFAULT_DATE_FORMAT);
+                String ssn = Utils.formatDate(employeesRepository.getServerTime(), Webservice.DEFAULT_DATE_FORMAT);
+                Log.i("Main", "Device now is: " + sdn + ", server now is: " + ssn);
                 Employees e2 = emps.active().exclude("employee_id", "88005");
 
                 Log.i("Main", "Finished");
