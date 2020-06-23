@@ -68,10 +68,15 @@ public class WebserviceRepository<S> {
     }
 
     protected void setError(Throwable t){
+        if(t instanceof WebserviceException){
+            ((WebserviceException)t).setServiceAvailable(serviceAvailable);
+        }
+
         liveDataRepositoryError.setValue(t);
     }
 
     protected void handleServiceError(Throwable t) {
+        WebserviceException wsx = null;
 
         if (t instanceof SocketTimeoutException || t instanceof ConnectException || t instanceof UnknownHostException) {
             serviceErrorCode = ERROR_SERVICE_UNREACHABLE;
@@ -80,11 +85,13 @@ public class WebserviceRepository<S> {
             //wait a certain time and then reset the serviceAvailable to try again
             serviceLastAvailable = Calendar.getInstance();
             serviceErrorMessage = "Employee unreachable due to " + t.getClass().getName();
-
+            wsx = new WebserviceException(serviceErrorMessage, serviceErrorCode, t);
+            setError(wsx);
+            return;
         }
 
         if (t instanceof WebserviceException) {
-            WebserviceException wsx = ((WebserviceException) t);
+            wsx = ((WebserviceException) t);
             switch (wsx.getHttpCode()) {
                 case 404:
                     serviceAvailable = true;

@@ -32,23 +32,41 @@ public class WebserviceException extends Exception {
         return wsex;
     }
 
-    public static WebserviceException create(String serviceID, Response<?> response, int errorCode){
-        WebserviceException sfex = create(response);
-        sfex.setErrorCode(errorCode);
-        return sfex;
+    public static WebserviceException create(Response<?> response, int errorCode){
+        WebserviceException wsex = create(response);
+        wsex.setErrorCode(errorCode);
+        return wsex;
     }
 
-    private String serviceID;
+    private Throwable throwable;
     private int errorCode;
     private int httpCode;
+    private boolean serviceAvailable = true;
 
-    WebserviceException(String message, int errorCode, int httpCode){
+    public WebserviceException(String message, int errorCode, int httpCode){
         super(message);
-        //this.serviceID = serviceID;
         this.errorCode = errorCode;
         this.httpCode = httpCode;
     }
 
+    public WebserviceException(String message, int errorCode, Throwable throwable){
+        super(message);
+        this.throwable = throwable;
+        this.errorCode = errorCode;
+    }
+
+    public WebserviceException(String message, int errorCode){
+        super(message);
+        this.errorCode = errorCode;
+    }
+
+    public void setServiceAvailable(boolean available){
+        serviceAvailable = available;
+    }
+
+    public boolean isServiceAvailable(){
+        return serviceAvailable;
+    }
     public void setHttpCode(int hc){ this.httpCode = hc; }
     public int getHttpCode(){ return httpCode; }
     public void setErrorCode(int errorCode){ this.errorCode = errorCode; }

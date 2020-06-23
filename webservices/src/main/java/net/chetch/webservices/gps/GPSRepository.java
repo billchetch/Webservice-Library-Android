@@ -13,7 +13,8 @@ public class GPSRepository extends WebserviceRepository<IGPSService>{
 
     static private GPSRepository instance = null;
     static public GPSRepository getInstance(){
-        return instance == null ? new GPSRepository() : instance;
+        if(instance == null)instance = new GPSRepository();
+        return instance;
     }
 
     public GPSRepository() {

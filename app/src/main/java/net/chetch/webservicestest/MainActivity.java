@@ -67,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
             apiBaseURL = "http://192.168.43.123:8004/api/";
             employeesRepository.setAPIBaseURL(apiBaseURL);
 
-            employeesRepository.getAbout().observe(this, about->{
-                Log.i("Main", "Finished");
-            });
-
-            /*employeesRepository.g().observe(this, emps->{
+            employeesRepository.getEmployees().observe(this, emps->{
                 ((TextView)findViewById(R.id.tv2)).setText("ER2: " + emps.size() + " " + System.currentTimeMillis());
+                Employee emp1 = emps.get(0);
+                Employee emp2 = new Employee();
+                emp2.read(emp1);
+
                 Log.i("Main","Employees received 2: " + emps.size());
-            });*/
+            });
 
             Button btn = findViewById(R.id.button);
             btn.setOnClickListener(new View.OnClickListener() {

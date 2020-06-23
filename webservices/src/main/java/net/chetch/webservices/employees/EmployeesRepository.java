@@ -17,7 +17,8 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
 
     static private EmployeesRepository instance = null;
     static public EmployeesRepository getInstance(){
-        return instance == null ? new EmployeesRepository() : instance;
+        if(instance == null)instance = new EmployeesRepository();
+        return instance;
     }
 
     public EmployeesRepository() {

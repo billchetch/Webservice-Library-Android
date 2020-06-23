@@ -22,6 +22,14 @@ public class Employee extends DataObject {
         return getString("full_name");
     }
 
+    public void setActive(boolean active){
+        set("active", active ? 1 : 0);
+    }
+
+    public boolean isActive(){
+        return getInteger("active") == 1;
+    }
+
     @Override
     public Object getCasted(String fieldName){
         switch(fieldName){

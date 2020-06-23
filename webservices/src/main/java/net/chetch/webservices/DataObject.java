@@ -7,7 +7,7 @@ import java.util.Calendar;
 
 abstract public class DataObject extends HashMap<String, String> {
 
-    private transient HashMap<String, String> oldValues = new HashMap<>();
+    private transient HashMap<String, Object> oldValues = new HashMap<>();
 
     public Integer getInteger(String fieldName){
         if(!containsKey(fieldName) || get(fieldName) == null){
@@ -76,7 +76,7 @@ abstract public class DataObject extends HashMap<String, String> {
     }
 
     public void set(String fieldName, Object fieldValue){
-        oldValues.put(fieldName, get(fieldName));
+        oldValues.put(fieldName, getCasted(fieldName));
         put(fieldName, fieldValue == null ? null : fieldValue.toString());
     }
 
@@ -88,7 +88,27 @@ abstract public class DataObject extends HashMap<String, String> {
     public Integer getID(){ return (Integer)getCasted("id"); }
 
     public boolean isDirty(){
-        return getID() == 0 || oldValues.size() > 0;
+        if(getID() == 0) { //a client side created object
+            return true;
+        } else { //this originates from the server
+            for(String fieldName : oldValues.keySet()){
+                Object oldValue = oldValues.get(fieldName);
+                if(oldValue == null){
+                    return oldValue == get(fieldName);
+                } else {
+                    try {
+                        return !equals(fieldName, oldValue);
+                    } catch (Exception e){
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    public void clean(){
+        oldValues.clear();
     }
 
     protected int compareNull(Object v1, Object v2, boolean nullIsLess) throws Exception {
@@ -121,6 +141,22 @@ abstract public class DataObject extends HashMap<String, String> {
             return v2.equals(v1);
         } else {
             return v1.equals(v2);
+        }
+    }
+
+    public void read(DataObject dataObject){
+        if(dataObject == null)return;
+
+        if(!dataObject.getClass().isAssignableFrom(getClass())){
+            return;
+        }
+
+        for(String fieldName : dataObject.keySet()){
+            String newFieldValue = dataObject.get(fieldName);
+            put(fieldName, newFieldValue);
+            if(oldValues.containsKey(fieldName)){
+                oldValues.remove(fieldName);
+            }
         }
     }
 }
