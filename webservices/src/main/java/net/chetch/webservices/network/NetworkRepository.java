@@ -25,8 +25,8 @@ public class NetworkRepository extends WebserviceRepository<INetworkService> {
     }
 
 
-    public LiveData<HashMap<String, Service>> getServices(){
-        final MutableLiveData<HashMap<String, Service>> services = new MutableLiveData<>();
+    public LiveData<Services> getServices(){
+        final MutableLiveData<Services> services = new MutableLiveData<>();
 
         if(service != null) {
             service.getServices().enqueue(createCallback(services));

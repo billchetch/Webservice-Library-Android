@@ -34,7 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
 
-    NetworkRepository networkRepository = new NetworkRepository();
+    NetworkRepository networkRepository = NetworkRepository.getInstance();
     GPSRepository gpsRepository = new GPSRepository();
     EmployeesRepository employeesRepository = EmployeesRepository.getInstance();
     int employeeID;
@@ -50,8 +50,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        employeesRepository.setDefaultCacheTime(LiveDataCache.VERY_SHORT_CACHE);
-        employeesRepository.getError().observe(this, t ->{
+        networkRepository.getError().observe(this, t ->{
             Log.e("Main", t.getMessage());
         });
 
@@ -61,19 +60,9 @@ public class MainActivity extends AppCompatActivity {
             String apiBaseURL = "http://192.168.43.123:8002/api/";
             networkRepository.setAPIBaseURL(apiBaseURL);
 
-            apiBaseURL = "http://192.168.43.123:8003/api/";
-            gpsRepository.setAPIBaseURL(apiBaseURL);
+            networkRepository.getServices().observe(this, services->{
 
-            apiBaseURL = "http://192.168.43.123:8004/api/";
-            employeesRepository.setAPIBaseURL(apiBaseURL);
-
-            employeesRepository.getEmployees().observe(this, emps->{
-                ((TextView)findViewById(R.id.tv2)).setText("ER2: " + emps.size() + " " + System.currentTimeMillis());
-                Employee emp1 = emps.get(0);
-                Employee emp2 = new Employee();
-                emp2.read(emp1);
-
-                Log.i("Main","Employees received 2: " + emps.size());
+                Log.i("Main","Network services: " + services.size());
             });
 
             Button btn = findViewById(R.id.button);

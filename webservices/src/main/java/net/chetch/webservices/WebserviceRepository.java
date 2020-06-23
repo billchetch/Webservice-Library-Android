@@ -84,7 +84,7 @@ public class WebserviceRepository<S> {
 
             //wait a certain time and then reset the serviceAvailable to try again
             serviceLastAvailable = Calendar.getInstance();
-            serviceErrorMessage = "Employee unreachable due to " + t.getClass().getName();
+            serviceErrorMessage = "Service unreachable due to " + t.getClass().getName();
             wsx = new WebserviceException(serviceErrorMessage, serviceErrorCode, t);
             setError(wsx);
             return;
@@ -132,6 +132,11 @@ public class WebserviceRepository<S> {
         }
     }
 
+    public void synchronise(WebserviceRepository otherRepo){
+        serverTimeDifference = otherRepo.getServerTimeDifference();
+        serverTimeTolerance = otherRepo.getServerTimeTolerance();
+    }
+
     public boolean isSynchronisedWithServer(int toleranceInSecs){
         if(serverTimeTolerance < 0){ //means no server communication yet
             return false;
@@ -144,6 +149,10 @@ public class WebserviceRepository<S> {
     }
 
     public long getServerTimeDifference(){
+        return serverTimeDifference;
+    }
+
+    public long getServerTimeTolerance(){
         return serverTimeDifference;
     }
 

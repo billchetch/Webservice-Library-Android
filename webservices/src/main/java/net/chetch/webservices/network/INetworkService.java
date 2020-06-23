@@ -10,5 +10,5 @@ import retrofit2.http.GET;
 
 public interface INetworkService{
     @GET("services")
-    Call<HashMap<String, Service>> getServices();
+    Call<Services> getServices();
 }
