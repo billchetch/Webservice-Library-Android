@@ -36,6 +36,7 @@ public class MainViewModel extends WebserviceViewModel {
             employeesRepository.getEmployees().add(liveDataEmployees).observe(employees->{
                 //employees loaded
                 notifyObserver(observer, employees);
+                Log.i("Main", "loadData: employees loaded");
             });
         });
     }

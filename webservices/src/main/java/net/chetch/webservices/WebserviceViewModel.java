@@ -67,6 +67,7 @@ public class WebserviceViewModel extends ViewModel {
 
     public void loadData(Observer observer){
         configureServices().observe(services->{
+            Log.i("Main", "loadData: Services configured");
             notifyObserver(observer, services);
         });
     }

@@ -63,9 +63,23 @@ public class DataCache {
 
         public void notifyObservers(boolean forceNotify){
             if(!hasExpired() || forceNotify) {
+
+                //loop through observers and notify as well as record those that are temporary for removal
+                //after notification.
+                List<Observer> temporary = new ArrayList<>();
                 for (Observer observer : observers) {
                     observer.onChanged(data);
+                    if(isTemporaryObserver(observer)){
+                        temporary.add(observer);
+                    }
                 }
+
+                //remove the temporary observers
+                for(Observer tempObserver : temporary){
+                    unobserve(tempObserver);
+                }
+
+                //set the value of the observing live data objects
                 for (MutableLiveData liveData : liveDataList) {
                     liveData.setValue(data);
                 }
@@ -91,10 +105,14 @@ public class DataCache {
         }
 
         public <T> CacheEntry add(MutableLiveData<T> liveData){
+            //if the cache data is still fresh and it has a value then we trigger the live data upon adding
+            //if the cache data has expired then the live data object will be set when the cache is updated
+            //with a fresh value
+            if(!hasExpired() && hasValue){
+                liveData.setValue((T)data);
+            }
+
             if(!liveDataList.contains(liveData)){
-                if(!hasExpired()){
-                    liveData.setValue((T)data);
-                }
                 liveDataList.add(liveData);
             }
             return this;
@@ -106,12 +124,22 @@ public class DataCache {
             }
         }
 
+        private boolean isTemporaryObserver(Observer observer){
+            return observer.getClass().isSynthetic();
+        }
+
         public <T> CacheEntry observe(Observer<T> observer){
             if(!observers.contains(observer)){
+                boolean add2list = !isTemporaryObserver(observer);
                 if(!hasExpired()){
                     observer.onChanged((T)data);
+                } else {
+                    add2list = true;
                 }
-                observers.add(observer);
+
+                if(add2list){
+                    observers.add(observer);
+                }
             }
             return this;
         }
