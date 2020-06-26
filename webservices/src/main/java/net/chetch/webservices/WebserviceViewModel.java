@@ -11,6 +11,7 @@ import net.chetch.webservices.employees.EmployeesRepository;
 import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
 import net.chetch.webservices.network.Services;
+import net.chetch.webservices.network.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +77,11 @@ public class WebserviceViewModel extends ViewModel {
         if(observer != null)observer.onChanged(data);
     }
 
+    protected void configureRepoService(WebserviceRepository<?> repo, Service service) throws Exception{
+        repo.setAPIBaseURL(service.getLocalEndpoint());
+        repo.synchronise(networkRepository);
+    }
+
     protected DataCache.CacheEntry configureServices() {
         return networkRepository.getServices().<Services>observe(services -> {
             for(Map.Entry<String, WebserviceRepository> entry : repos.entrySet()) {
@@ -83,7 +89,7 @@ public class WebserviceViewModel extends ViewModel {
                     String serviceName = entry.getKey();
                     WebserviceRepository repo = entry.getValue();
                     if (services.hasService(serviceName)) {
-                        repo.setAPIBaseURL(services.getServiceLocalEndpoint(serviceName));
+                        configureRepoService(repo, services.getService(serviceName));
                     } else {
                         throw new Exception("There is no service with name " + serviceName);
                     }
