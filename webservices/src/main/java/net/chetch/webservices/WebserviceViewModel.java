@@ -2,6 +2,7 @@ package net.chetch.webservices;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
@@ -51,7 +52,7 @@ public class WebserviceViewModel extends ViewModel {
     public WebserviceRepository addRepo(String serviceName, WebserviceRepository<?> repo) {
         repos.put(serviceName, repo);
         observeError(repo);
-        servicesConfigured= false;
+        servicesConfigured = false;
         return repo;
     }
 
@@ -60,8 +61,18 @@ public class WebserviceViewModel extends ViewModel {
         return repos.containsKey(serviceName) ? repos.get(serviceName) : null;
     }
 
-    public DataCache.CacheEntry loadData(){
-        return configureServices();
+    public void loadData(){
+        loadData(null);
+    }
+
+    public void loadData(Observer observer){
+        configureServices().observe(services->{
+            notifyObserver(observer, services);
+        });
+    }
+
+    protected void notifyObserver(Observer observer, Object data){
+        if(observer != null)observer.onChanged(data);
     }
 
     protected DataCache.CacheEntry configureServices() {

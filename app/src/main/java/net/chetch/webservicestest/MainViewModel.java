@@ -31,9 +31,12 @@ public class MainViewModel extends WebserviceViewModel {
     }
 
     @Override
-    public DataCache.CacheEntry loadData(){
-        return super.loadData().observe( o->{
-            employeesRepository.getEmployees().add(liveDataEmployees);
+    public void loadData(Observer observer){
+        super.loadData(data->{
+            employeesRepository.getEmployees().add(liveDataEmployees).observe(employees->{
+                //employees loaded
+                notifyObserver(observer, employees);
+            });
         });
     }
 

@@ -90,21 +90,20 @@ public class DataCache {
             this.valueLastUpdated = -1;
         }
 
-        public <T> LiveData<T> add(MutableLiveData<T> liveData){
+        public <T> CacheEntry add(MutableLiveData<T> liveData){
             if(!liveDataList.contains(liveData)){
                 if(!hasExpired()){
                     liveData.setValue((T)data);
                 }
                 liveDataList.add(liveData);
             }
-            return liveData;
+            return this;
         }
 
-        public LiveData remove(MutableLiveData liveData){
+        public void remove(MutableLiveData liveData){
             if(liveDataList.contains(liveData)){
                 liveDataList.remove(liveData);
             }
-            return liveData;
         }
 
         public <T> CacheEntry observe(Observer<T> observer){
