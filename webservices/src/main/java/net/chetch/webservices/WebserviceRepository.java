@@ -2,6 +2,7 @@ package net.chetch.webservices;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.util.Log;
 
 import net.chetch.utilities.Utils;
@@ -17,13 +18,12 @@ import java.util.List;
 
 import okhttp3.Cache;
 import okhttp3.Headers;
+import retrofit2.Response;
 
-public class WebserviceRepository<S> {
+public class WebserviceRepository<S> implements Observer{
     static public final int ERROR_SERVICE_UNREACHABLE = 4;
 
-    protected final MutableLiveData<Throwable> liveDataServiceError = new MutableLiveData<>();
-    protected final MutableLiveData<Throwable> liveDataRepositoryError = new MutableLiveData<>();
-    protected final MutableLiveData<WebserviceCallback.WebserviceCallbackInfo> liveDataCallbackInfo = new MutableLiveData<>();
+    protected MutableLiveData<Throwable> liveDataError = new MutableLiveData<>();
 
     protected Webservice<S> webservice;
     protected S service;
@@ -35,24 +35,16 @@ public class WebserviceRepository<S> {
     private long serverTimeDifference;
     private long serverTimeTolerance =  -1;
 
-    public LiveDataCache cache = new LiveDataCache();
+    public DataCache cache = new DataCache();
 
     public WebserviceRepository(Webservice<S> webservice, int defaultCacheTime){
         this.webservice = webservice;
-
-        liveDataServiceError.observeForever(t->{
-            handleServiceError(t);
-        });
-
-        liveDataCallbackInfo.observeForever(i->{
-            handleCallbackInfo(i);
-        });
 
         setDefaultCacheTime(defaultCacheTime);
     }
 
     public WebserviceRepository(Webservice<S> webservice){
-        this(webservice, LiveDataCache.SHORT_CACHE);
+        this(webservice, DataCache.SHORT_CACHE);
     }
 
     public WebserviceRepository(Class<S> s, int defaultCacheTime){
@@ -63,8 +55,19 @@ public class WebserviceRepository<S> {
         this(new Webservice(s));
     }
 
+    @Override
+    public void onChanged(Object o) {
+        if(o instanceof Throwable){
+            handleServiceError((Throwable)o);
+        } else if(o instanceof WebserviceCallback.WebserviceCallbackInfo){
+            handleCallbackInfo((WebserviceCallback.WebserviceCallbackInfo)o);
+        } else if(o instanceof Response){
+            handleResponse((Response)o);
+        }
+    }
+
     public LiveData<Throwable> getError(){
-        return liveDataRepositoryError;
+        return liveDataError;
     }
 
     protected void setError(Throwable t){
@@ -72,7 +75,7 @@ public class WebserviceRepository<S> {
             ((WebserviceException)t).setServiceAvailable(serviceAvailable);
         }
 
-        liveDataRepositoryError.setValue(t);
+        liveDataError.setValue(t);
     }
 
     protected void handleServiceError(Throwable t) {
@@ -132,6 +135,10 @@ public class WebserviceRepository<S> {
         }
     }
 
+    protected void handleResponse(Response response){
+        //do nothing atm .. can be overriden if required
+    }
+
     public void synchronise(WebserviceRepository otherRepo){
         serverTimeDifference = otherRepo.getServerTimeDifference();
         serverTimeTolerance = otherRepo.getServerTimeTolerance();
@@ -171,14 +178,16 @@ public class WebserviceRepository<S> {
     }
 
     public WebserviceCallback createCallback(MutableLiveData liveDataResponse){
-        return webservice.createCallback(liveDataServiceError, liveDataResponse, liveDataCallbackInfo);
+        return webservice.createCallback(this, liveDataResponse);
     }
 
-    public WebserviceCallback createCallback(LiveDataCache.CacheEntry cacheEntry){
-        return webservice.createCallback(liveDataServiceError, cacheEntry, liveDataCallbackInfo);
+    public WebserviceCallback createCallback(DataCache.CacheEntry cacheEntry){
+        return webservice.createCallback(this, cacheEntry);
     }
 
     public void setDefaultCacheTime(int cacheTime){
         cache.setDefaultCacheTime(cacheTime);
     }
+
+
 }

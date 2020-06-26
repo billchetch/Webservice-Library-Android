@@ -3,9 +3,11 @@ package net.chetch.webservices.gps;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
+import net.chetch.webservices.DataCache;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
 import net.chetch.webservices.employees.EmployeesRepository;
+import net.chetch.webservices.network.Services;
 
 import java.util.Calendar;
 
@@ -21,12 +23,13 @@ public class GPSRepository extends WebserviceRepository<IGPSService>{
         super(new Webservice(IGPSService.class));
     }
 
-    public LiveData<GPSPosition> getLatestPosition(){
-        final MutableLiveData<GPSPosition> position = new MutableLiveData<>();
+    public DataCache.CacheEntry getLatestPosition(){
+        DataCache.CacheEntry entry = cache.getCacheEntry("latest-position");
 
-        if(service != null) {
-            service.getLatestPosition().enqueue(createCallback(position));
+        if(entry.hasExpired()) {
+            service.getLatestPosition().enqueue(createCallback(entry));
         }
-        return position;
+
+        return entry;
     }
 }

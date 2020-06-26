@@ -1,7 +1,7 @@
 package net.chetch.webservices;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 
 import com.google.gson.TypeAdapter;
 
@@ -16,7 +16,7 @@ public class Webservice<S> {
     static public final String HEADER_SERVER_TIME = "X-Server-Time";
 
     public String dateFormat = DEFAULT_DATE_FORMAT;
-    public String dateFormatOnly = DEFAULT_DATE_ONLY_FORMAT;
+    public String dateOnlyFormat = DEFAULT_DATE_ONLY_FORMAT;
     public String userAgent = DEFAULT_USER_AGENT;
 
 
@@ -52,13 +52,12 @@ public class Webservice<S> {
         return this.apiBaseURL;
     }
 
-    public WebserviceCallback createCallback(MutableLiveData liveDataError, MutableLiveData liveDataResponse, MutableLiveData liveDataCallbackInfo){
-        return new WebserviceCallback(liveDataError, liveDataResponse, liveDataCallbackInfo);
+    public WebserviceCallback createCallback(Observer observer, MutableLiveData liveDataResponse){
+        return new WebserviceCallback(observer, liveDataResponse);
     }
 
-    public WebserviceCallback createCallback(MutableLiveData liveDataError, LiveDataCache.CacheEntry cacheEntry, MutableLiveData liveDataCallbackInfo){
-
-        return new WebserviceCallback(liveDataError, cacheEntry, liveDataCallbackInfo);
+    public WebserviceCallback createCallback(Observer observer, DataCache.CacheEntry cacheEntry){
+        return new WebserviceCallback(observer, cacheEntry);
     }
 
 }

@@ -2,10 +2,12 @@ package net.chetch.webservices.employees;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 
 import net.chetch.webservices.AboutService;
+import net.chetch.webservices.DataCache;
 import net.chetch.webservices.DataObjectCollection;
-import net.chetch.webservices.LiveDataCache;
+import net.chetch.webservices.DataCache;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceCallback;
 import net.chetch.webservices.WebserviceRepository;
@@ -29,14 +31,14 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         super(IEmployeesService.class, defaultCacheTime);
     }
 
-    public LiveData<AboutService> getAbout(){
-        LiveDataCache.CacheEntry entry = cache.<Employees>getCacheEntry("about-service");
+    public DataCache.CacheEntry getAbout(){
+        DataCache.CacheEntry entry = cache.getCacheEntry("about-service");
 
-        if(entry.refreshValue()) {
+        if(entry.hasExpired()) {
             service.getAbout().enqueue(createCallback(entry));
         }
 
-        return entry.liveData;
+        return entry;
     }
 
     public LiveData<Employee> addEmployee(Employee employee){
@@ -44,8 +46,7 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
 
         service.putEmployee(employee, employee.getID()).enqueue(createCallback(liveDataEmployee));
 
-        cache.setRefreshOnNextCall("employees");
-        cache.setRefreshOnNextCall("active-employees");
+        cache.setExpireOnNextCall("employees", "active-employees");
 
         return liveDataEmployee;
     }
@@ -55,30 +56,29 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
 
         service.deleteEmployee(id).enqueue(createCallback(liveDataID));
 
-        cache.setRefreshOnNextCall("employees");
-        cache.setRefreshOnNextCall("active-employees");
+        cache.setExpireOnNextCall("employees", "active-employees");
 
         return liveDataID;
     }
 
-    public LiveData<Employees> getActiveEmployees(){
-        LiveDataCache.CacheEntry entry = cache.<Employees>getCacheEntry("active-employees");
+    public DataCache.CacheEntry getActiveEmployees(){
+        DataCache.CacheEntry entry = cache.getCacheEntry("active-employees");
 
-        if(entry.refreshValue()) {
+        if(entry.hasExpired()) {
             service.getActiveEmployees(0).enqueue(createCallback(entry));
         }
 
-        return entry.liveData;
+        return entry;
     }
 
-    public LiveData<Employees> getEmployees(){
-        LiveDataCache.CacheEntry entry = cache.<Employees>getCacheEntry("employees");
+    public DataCache.CacheEntry getEmployees(){
+        DataCache.CacheEntry entry = cache.getCacheEntry("employees");
 
-        if(entry.refreshValue()) {
+        if(entry.hasExpired()) {
             service.getEmployees(0).enqueue(createCallback(entry));
         }
 
-        return entry.liveData;
+        return entry;
     }
 
 

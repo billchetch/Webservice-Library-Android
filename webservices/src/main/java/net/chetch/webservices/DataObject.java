@@ -1,5 +1,7 @@
 package net.chetch.webservices;
 
+import android.provider.ContactsContract;
+
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -142,6 +144,26 @@ abstract public class DataObject extends HashMap<String, String> {
         } else {
             return v1.equals(v2);
         }
+    }
+
+    public boolean equals(String fieldName, DataObject dataObject){
+        return equals(fieldName, dataObject.getCasted(fieldName));
+    }
+
+    @Override
+    public boolean equals(Object v){
+        if(v == null)return false;
+        if(!(v instanceof DataObject))return false;
+
+        DataObject dataObject = (DataObject)v;
+
+        if(size() != dataObject.size())return false;
+        for(String fieldName : keySet()){
+            if(!equals(fieldName, dataObject)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public void read(DataObject dataObject){

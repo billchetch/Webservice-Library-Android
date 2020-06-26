@@ -1,8 +1,10 @@
 package net.chetch.webservices;
 
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 
 import net.chetch.webservices.exceptions.WebserviceException;
+
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -17,35 +19,33 @@ public class WebserviceCallback<T> implements Callback<T> {
         public long responseTime = 0;
     }
 
-    private MutableLiveData<Throwable> liveDataError;
+    private Throwable lastError;
+    private Observer observer;
     private MutableLiveData<T> liveDataResponse = null;
-    private LiveDataCache.CacheEntry cacheEntry = null;
-    private MutableLiveData<WebserviceCallbackInfo> liveDataCallbackInfo = null;
+    private DataCache.CacheEntry cacheEntry = null;
 
-    public WebserviceCallback(MutableLiveData<Throwable> liveDataError, MutableLiveData<T> liveDataResponse, MutableLiveData<WebserviceCallbackInfo> liveDataCallbackInfo){
-        this.liveDataError = liveDataError;
+    public WebserviceCallback(Observer observer, MutableLiveData<T> liveDataResponse){
+        this.observer = observer;
         this.liveDataResponse = liveDataResponse;
-        this.liveDataCallbackInfo = liveDataCallbackInfo;
     }
 
-    public WebserviceCallback(MutableLiveData<Throwable> liveDataError, LiveDataCache.CacheEntry cacheEntry, MutableLiveData<WebserviceCallbackInfo> liveDataCallbackInfo){
-        this.liveDataError = liveDataError;
+    public WebserviceCallback(Observer observer, DataCache.CacheEntry cacheEntry){
+        this.observer = observer;
         this.cacheEntry = cacheEntry;
-        this.liveDataCallbackInfo = liveDataCallbackInfo;
     }
 
     public Throwable getLastError(){
-        return liveDataError.getValue();
+        return lastError;
     }
 
     @Override
     public void onResponse(Call<T> call, Response<T> response) {
-        if(liveDataCallbackInfo != null){
-            WebserviceCallbackInfo callbackInfo = new WebserviceCallbackInfo();
-            callbackInfo.headers = response.headers();
-            callbackInfo.responseIsSuccessful = response.isSuccessful();
-            callbackInfo.responseTime = response.raw().receivedResponseAtMillis() - response.raw().sentRequestAtMillis();
-            liveDataCallbackInfo.setValue(callbackInfo);
+        WebserviceCallbackInfo callbackInfo = new WebserviceCallbackInfo();
+        callbackInfo.headers = response.headers();
+        callbackInfo.responseIsSuccessful = response.isSuccessful();
+        callbackInfo.responseTime = response.raw().receivedResponseAtMillis() - response.raw().sentRequestAtMillis();
+        if(observer != null){
+           observer.onChanged(callbackInfo);
         }
 
         if(response.isSuccessful()){
@@ -61,8 +61,9 @@ public class WebserviceCallback<T> implements Callback<T> {
 
     @Override
     public void onFailure(Call<T> call, Throwable t) {
-        if(liveDataError != null && t != null){
-            liveDataError.setValue(t);
+        lastError = t;
+        if(observer != null){
+            observer.onChanged(t);
         }
     }
 
@@ -73,18 +74,21 @@ public class WebserviceCallback<T> implements Callback<T> {
         if(liveDataResponse != null){
             liveDataResponse.setValue(response.body());
         }
+        if(observer != null){
+            observer.onChanged(response);
+        }
     }
 
     public void handleEmptyResponse(Call<T> call, Response<T> response){
-        if(liveDataError != null) {
-            liveDataError.setValue(new Exception("Empty response body"));
+        if(observer != null){
+            observer.onChanged(new Exception("Empty response body"));
         }
     }
 
     public void handleError(Call<T> call, Response<T> response){
-        if(liveDataError != null) {
-            WebserviceException sfex = WebserviceException.create(response);
-            liveDataError.setValue(sfex);
+        WebserviceException wsex = WebserviceException.create(response);
+        if(observer != null){
+            observer.onChanged(wsex);
         }
     }
 

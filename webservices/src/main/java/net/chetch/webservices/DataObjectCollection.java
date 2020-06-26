@@ -83,11 +83,34 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
 
     }
 
-    //instance methods and firelds
+    //instance methods and fields
     Class collectionClass;
 
     public <C extends DataObjectCollection> DataObjectCollection(Class<C> cls){
         collectionClass = cls;
+    }
+
+    @Override
+    public boolean equals(Object v){
+        if(v == null)return false;
+
+        if(!(v instanceof DataObjectCollection)){
+            return false;
+        }
+        DataObjectCollection doc = (DataObjectCollection)v;
+        if(doc.size() != size())return false;
+
+        for(Object dataObject1 : this){
+            boolean exists = false;
+            for(Object dataObject2 : doc){
+                if(dataObject1.equals(dataObject2)){
+                    exists = true;
+                    break;
+                }
+            }
+            if(!exists)return false;
+        }
+        return true;
     }
 
     protected <C extends DataObjectCollection<D>> C createCollection(){
