@@ -50,13 +50,24 @@ public class WebserviceViewModel extends ViewModel {
         return error;
     }
 
-    public WebserviceRepository addRepo(String serviceName, WebserviceRepository<?> repo) {
+    public WebserviceRepository addRepo(String serviceName, WebserviceRepository<?> repo) throws Exception {
+        if(repos.containsKey(serviceName)){
+            throw new Exception("Cannot add repo with service " + serviceName + " as a repo already exists for that service");
+        }
         repos.put(serviceName, repo);
         observeError(repo);
         servicesConfigured = false;
         return repo;
     }
 
+    public WebserviceRepository addRepo(WebserviceRepository<?> repo){
+        try {
+            return addRepo(repo.webservice.getDefaultName(), repo);
+        } catch(Exception e){
+            error.setValue(e);
+            return null;
+        }
+    }
 
     public WebserviceRepository getRepo(String serviceName) {
         return repos.containsKey(serviceName) ? repos.get(serviceName) : null;
@@ -67,14 +78,13 @@ public class WebserviceViewModel extends ViewModel {
     }
 
     public void loadData(Observer observer){
-        configureServices().observe(services->{
-            Log.i("Main", "loadData: Services configured");
-            notifyObserver(observer, services);
-        });
+        configureServices(observer);
     }
 
     protected void notifyObserver(Observer observer, Object data){
-        if(observer != null)observer.onChanged(data);
+        if(observer != null){
+            observer.onChanged(data);
+        }
     }
 
     protected void configureRepoService(WebserviceRepository<?> repo, Service service) throws Exception{
@@ -82,8 +92,9 @@ public class WebserviceViewModel extends ViewModel {
         repo.synchronise(networkRepository);
     }
 
-    protected DataCache.CacheEntry configureServices() {
-        return networkRepository.getServices().<Services>observe(services -> {
+    protected DataStore configureServices(Observer observer) {
+        return networkRepository.getServices().observe(services -> {
+
             for(Map.Entry<String, WebserviceRepository> entry : repos.entrySet()) {
                 try {
                     String serviceName = entry.getKey();
@@ -97,8 +108,10 @@ public class WebserviceViewModel extends ViewModel {
                     Log.e("MVM", e.getMessage());
                     error.setValue(e);
                 }
-                servicesConfigured = true;
             }
+
+            servicesConfigured = true;
+            notifyObserver(observer, services);
             Log.i("MVM", "Network services: " + services.size());
         });
     }

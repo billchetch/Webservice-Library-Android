@@ -166,12 +166,12 @@ abstract public class DataObject extends HashMap<String, String> {
         return true;
     }
 
-    public void read(DataObject dataObject){
-        if(dataObject == null)return;
-
+    public boolean read(DataObject dataObject){
         if(!dataObject.getClass().isAssignableFrom(getClass())){
-            return;
+            return false;
         }
+
+        if(dataObject == null)return true;
 
         for(String fieldName : dataObject.keySet()){
             String newFieldValue = dataObject.get(fieldName);
@@ -180,5 +180,7 @@ abstract public class DataObject extends HashMap<String, String> {
                 oldValues.remove(fieldName);
             }
         }
+
+        return true;
     }
 }

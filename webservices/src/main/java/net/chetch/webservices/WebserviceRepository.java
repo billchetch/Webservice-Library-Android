@@ -35,7 +35,7 @@ public class WebserviceRepository<S> implements Observer{
     private long serverTimeDifference;
     private long serverTimeTolerance =  -1;
 
-    public DataCache cache = new DataCache();
+    protected DataCache cache = new DataCache();
 
     public WebserviceRepository(Webservice<S> webservice, int defaultCacheTime){
         this.webservice = webservice;
@@ -75,7 +75,7 @@ public class WebserviceRepository<S> implements Observer{
             ((WebserviceException)t).setServiceAvailable(serviceAvailable);
         }
 
-        liveDataError.setValue(t);
+        liveDataError.postValue(t);
     }
 
     protected void handleServiceError(Throwable t) {
@@ -177,17 +177,15 @@ public class WebserviceRepository<S> implements Observer{
         return webservice.getAPIBaseURL();
     }
 
-    public WebserviceCallback createCallback(MutableLiveData liveDataResponse){
-        return webservice.createCallback(this, liveDataResponse);
+    public <T> WebserviceCallback<T> createCallback(DataStore dataStore){
+        return webservice.createCallback(this, dataStore);
     }
 
-    public WebserviceCallback createCallback(DataCache.CacheEntry cacheEntry){
-        return webservice.createCallback(this, cacheEntry);
+    public <T> DataCache.CacheEntry<T> getCacheEntry(String key){
+        return cache.getCacheEntry(key);
     }
 
     public void setDefaultCacheTime(int cacheTime){
         cache.setDefaultCacheTime(cacheTime);
     }
-
-
 }

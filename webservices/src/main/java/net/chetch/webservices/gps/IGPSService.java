@@ -5,6 +5,8 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface IGPSService {
+    String SERVICE_NAME = "GPS";
+
     @GET("latest-position")
     Call<GPSPosition> getLatestPosition();
 }

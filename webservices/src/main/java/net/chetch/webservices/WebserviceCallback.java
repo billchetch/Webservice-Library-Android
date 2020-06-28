@@ -21,17 +21,12 @@ public class WebserviceCallback<T> implements Callback<T> {
 
     private Throwable lastError;
     private Observer observer;
-    private MutableLiveData<T> liveDataResponse = null;
-    private DataCache.CacheEntry cacheEntry = null;
+    private DataStore dataStore = null;
 
-    public WebserviceCallback(Observer observer, MutableLiveData<T> liveDataResponse){
-        this.observer = observer;
-        this.liveDataResponse = liveDataResponse;
-    }
 
-    public WebserviceCallback(Observer observer, DataCache.CacheEntry cacheEntry){
+    public WebserviceCallback(Observer observer, DataStore dataStore){
         this.observer = observer;
-        this.cacheEntry = cacheEntry;
+        this.dataStore = dataStore;
     }
 
     public Throwable getLastError(){
@@ -68,14 +63,12 @@ public class WebserviceCallback<T> implements Callback<T> {
     }
 
     public void handleResponse(Call<T> call, Response<T> response){
-        if(cacheEntry != null){
-            cacheEntry.updateValue(response.body());
-        }
-        if(liveDataResponse != null){
-            liveDataResponse.setValue(response.body());
-        }
         if(observer != null){
             observer.onChanged(response);
+        }
+
+        if(dataStore != null){
+            dataStore.updateData(response.body());
         }
     }
 

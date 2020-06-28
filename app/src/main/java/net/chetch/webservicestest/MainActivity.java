@@ -7,6 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import net.chetch.webservices.DataStore;
+import net.chetch.webservices.employees.Employee;
+import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.network.NetworkRepository;
 
 import java.util.Calendar;
@@ -34,7 +37,12 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Main", "Error: " + t.getMessage());
         });
 
-        model.getEmployees().observe(this, employees->{
+
+        model.loadData(data->{
+            Log.i("Main", "Loaded data");
+        });
+
+        /*model.getEmployees().observe(this, employees->{
             log("Has " + employees.size() + " employees " + Calendar.getInstance().getTimeInMillis());
         });
 
@@ -42,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
             log("YOOOOO" + employees.size() + " employees " + Calendar.getInstance().getTimeInMillis());
         });
 
-        model.loadData();
+
 
         //build repository
         try {
@@ -65,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (Exception e){
             Log.e("Main", e.getMessage());
-        }
+        }*/
     }
 
 

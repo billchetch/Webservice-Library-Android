@@ -2,18 +2,20 @@ package net.chetch.webservices.employees;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.graphics.Bitmap;
 import android.util.Log;
 
+import net.chetch.utilities.Utils;
 import net.chetch.webservices.AboutService;
 import net.chetch.webservices.DataCache;
-import net.chetch.webservices.DataObjectCollection;
-import net.chetch.webservices.DataCache;
-import net.chetch.webservices.Webservice;
-import net.chetch.webservices.WebserviceCallback;
+import net.chetch.webservices.DataStore;
 import net.chetch.webservices.WebserviceRepository;
-import net.chetch.webservices.gps.IGPSService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import retrofit2.Response;
 
 public class EmployeesRepository extends WebserviceRepository<IEmployeesService> {
 
@@ -31,55 +33,93 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         super(IEmployeesService.class, defaultCacheTime);
     }
 
-    public DataCache.CacheEntry getAbout(){
-        DataCache.CacheEntry entry = cache.getCacheEntry("about-service");
 
-        if(entry.hasExpired()) {
+    @Override
+    protected void handleResponse(Response response) {
+        super.handleResponse(response);
+
+        if(response.body() instanceof Employees){
+            for(Employee emp : (Employees<Employee>)response.body()){
+                String key = "profile-pic-" + emp.getEmployeeID();
+                if(!cache.entryIsEmpty(key)){
+                    emp.profileImage = cache.<Bitmap>getCacheEntry(key).getData();
+                }
+            }
+        }
+    }
+
+    public DataStore<AboutService> getAbout(){
+        DataCache.CacheEntry<AboutService> entry = cache.getCacheEntry("about-service");
+
+        if(entry.requiresUpdating()) {
             service.getAbout().enqueue(createCallback(entry));
         }
 
         return entry;
     }
 
-    public LiveData<Employee> addEmployee(Employee employee){
-        final MutableLiveData<Employee> liveDataEmployee = new MutableLiveData<>();
+    public DataStore<Employee> addEmployee(Employee employee){
+        final DataStore<Employee> dsEmployee = new DataStore<>();
 
-        service.putEmployee(employee, employee.getID()).enqueue(createCallback(liveDataEmployee));
+        service.putEmployee(employee, employee.getID()).enqueue(createCallback(dsEmployee));
 
-        cache.setExpireOnNextCall("employees", "active-employees");
+        cache.forceExpire("employees", "active-employees");
 
-        return liveDataEmployee;
+        return dsEmployee;
     }
 
-    public LiveData<Integer> removeEmployee(int id){
-        final MutableLiveData<Integer> liveDataID = new MutableLiveData<>();
+    public DataStore<Integer> removeEmployee(int id){
+        final DataStore<Integer> dsID = new DataStore<>();
 
-        service.deleteEmployee(id).enqueue(createCallback(liveDataID));
+        service.deleteEmployee(id).enqueue(createCallback(dsID));
 
-        cache.setExpireOnNextCall("employees", "active-employees");
+        cache.forceExpire("employees", "active-employees");
 
-        return liveDataID;
+        return dsID;
     }
 
-    public DataCache.CacheEntry getActiveEmployees(){
-        DataCache.CacheEntry entry = cache.getCacheEntry("active-employees");
+    public DataStore<Employees<Employee>> getActiveEmployees(){
+        DataCache.CacheEntry<Employees<Employee>> entry = cache.getCacheEntry("active-employees");
 
-        if(entry.hasExpired()) {
+        if(entry.requiresUpdating()) {
             service.getActiveEmployees(0).enqueue(createCallback(entry));
         }
 
         return entry;
     }
 
-    public DataCache.CacheEntry getEmployees(){
-        DataCache.CacheEntry entry = cache.getCacheEntry("employees");
+    public DataStore<Employees<Employee>> getEmployees(){
+        DataCache.CacheEntry<Employees<Employee>> entry = cache.getCacheEntry("employees");
 
-        if(entry.hasExpired()) {
+        if(entry.requiresUpdating()) {
             service.getEmployees(0).enqueue(createCallback(entry));
         }
 
         return entry;
     }
 
+    public DataStore<HashMap<String, Bitmap>> getProfilePics(List<Employee> employees){
+        DataStore<HashMap<String, Bitmap>> ds = new DataStore<>();
+
+        HashMap<String, Employee> url2emps = new HashMap<>();
+        for(Employee emp : employees){
+            String src = webservice.getAPIBaseURL() + "/resource/image/profile-pics/" + emp.getEmployeeID();
+            url2emps.put(src, emp);
+        }
+
+        Utils.downloadImages(url2emps.keySet(), bms->{
+            for(Map.Entry<String, Bitmap> entry : bms.entrySet()){
+                Employee emp = url2emps.get(entry.getKey());
+                emp.profileImage = entry.getValue();
+
+                DataCache.CacheEntry<Bitmap> ce = cache.getCacheEntry("profile-pic-" + emp.getEmployeeID());
+                ce.updateData(emp.profileImage);
+            }
+
+            ds.updateData(bms);
+        });
+
+        return ds;
+    }
 
 }

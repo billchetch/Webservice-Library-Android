@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
 import net.chetch.webservices.DataCache;
+import net.chetch.webservices.DataStore;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
 import net.chetch.webservices.employees.EmployeesRepository;
@@ -23,10 +24,10 @@ public class GPSRepository extends WebserviceRepository<IGPSService>{
         super(new Webservice(IGPSService.class));
     }
 
-    public DataCache.CacheEntry getLatestPosition(){
-        DataCache.CacheEntry entry = cache.getCacheEntry("latest-position");
+    public DataStore<GPSPosition> getLatestPosition(){
+        DataCache.CacheEntry<GPSPosition> entry = cache.getCacheEntry("latest-position");
 
-        if(entry.hasExpired()) {
+        if(entry.requiresUpdating()) {
             service.getLatestPosition().enqueue(createCallback(entry));
         }
 

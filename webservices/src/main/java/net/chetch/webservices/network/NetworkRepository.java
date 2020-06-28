@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData;
 import net.chetch.webservices.AboutService;
 import net.chetch.webservices.DataCache;
 import net.chetch.webservices.DataCache;
+import net.chetch.webservices.DataStore;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
 import net.chetch.webservices.employees.EmployeesRepository;
@@ -27,12 +28,13 @@ public class NetworkRepository extends WebserviceRepository<INetworkService> {
         super(new Webservice(INetworkService.class));
     }
 
-    public DataCache.CacheEntry getServices(){
-        DataCache.CacheEntry entry = cache.getCacheEntry("services");
+    public DataStore<Services> getServices(){
+        DataCache.CacheEntry<Services> entry = cache.getCacheEntry("services");
 
-        if(entry.hasExpired()) {
+        if(entry.requiresUpdating()) {
             service.getServices().enqueue(createCallback(entry));
         }
-        return entry;
+
+        return (DataStore)entry;
     }
 }

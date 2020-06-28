@@ -41,4 +41,13 @@ public class Employee extends DataObject {
                 return super.getCasted(fieldName);
         }
     }
+
+    @Override
+    public boolean read(DataObject dataObject) {
+        boolean success = super.read(dataObject);
+        if(success){
+            profileImage = ((Employee)dataObject).profileImage;
+        }
+        return success;
+    }
 }

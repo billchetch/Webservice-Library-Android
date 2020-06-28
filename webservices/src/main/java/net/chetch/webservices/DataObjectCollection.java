@@ -84,10 +84,16 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
     }
 
     //instance methods and fields
-    Class collectionClass;
+    protected Class collectionClass;
+    protected Class itemClass;
 
-    public <C extends DataObjectCollection> DataObjectCollection(Class<C> cls){
-        collectionClass = cls;
+    public <C extends DataObjectCollection> DataObjectCollection(Class<C> ccls, Class<D> icls){
+        collectionClass = ccls;
+        itemClass = icls;
+    }
+
+    public <C extends DataObjectCollection> DataObjectCollection(Class<C> ccls){
+        this(ccls, null);
     }
 
     @Override
@@ -113,10 +119,35 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
         return true;
     }
 
+    public boolean read(DataObjectCollection<?> dataObjectCollection){
+        if(!dataObjectCollection.getClass().isAssignableFrom(getClass())){
+            return false;
+        }
+
+        if(dataObjectCollection == null)return true;
+
+        for(DataObject dataObject : dataObjectCollection){
+            D newDataObject = createDataObject();
+            if(newDataObject.read(dataObject)){
+                add(newDataObject);
+            }
+        }
+
+        return true;
+    }
+
     protected <C extends DataObjectCollection<D>> C createCollection(){
         try {
             C newCollection = (C)collectionClass.getDeclaredConstructor().newInstance();
             return newCollection;
+        } catch (Exception e){
+            return null;
+        }
+    }
+
+    protected D createDataObject(){
+        try {
+            return itemClass == null ? null : (D)itemClass.getDeclaredConstructor().newInstance();
         } catch (Exception e){
             return null;
         }

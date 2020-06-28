@@ -42,6 +42,10 @@ public class Webservice<S> {
         typeAdapterClasses.add(typeAdapterClass);
     }
 
+    public String getDefaultName() throws Exception{
+        return serviceClass.getDeclaredField("SERVICE_NAME").get(null).toString();
+    }
+
     public S setAPIBaseURL(String apiBaseURL) throws Exception{
         this.apiBaseURL = apiBaseURL;
         service = WebserviceManager.addService(apiBaseURL, this);
@@ -52,12 +56,9 @@ public class Webservice<S> {
         return this.apiBaseURL;
     }
 
-    public WebserviceCallback createCallback(Observer observer, MutableLiveData liveDataResponse){
-        return new WebserviceCallback(observer, liveDataResponse);
-    }
 
-    public WebserviceCallback createCallback(Observer observer, DataCache.CacheEntry cacheEntry){
-        return new WebserviceCallback(observer, cacheEntry);
+    public <T> WebserviceCallback<T> createCallback(Observer observer, DataStore<?> dataStore){
+        return new WebserviceCallback<T>(observer, dataStore);
     }
 
 }

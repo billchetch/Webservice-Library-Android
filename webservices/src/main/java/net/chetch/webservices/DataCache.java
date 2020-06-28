@@ -29,125 +29,83 @@ public class DataCache {
     protected int defaultCacheTime = NO_CACHE;
     private HashMap<String, CacheEntry> cache = new HashMap<>();
 
-
-    public class CacheEntry{
+    public class CacheEntry<T> extends DataStore<T>{
         final public String key;
-        private List<Observer> observers = new ArrayList<>();
-        private List<MutableLiveData> liveDataList = new ArrayList<>();
         private int cacheTime;
-        private long valueLastUpdated;
-        private boolean hasValue = false;
-        private Object data;
+        private long dataLastUpdated;
+        private boolean waitingForData = false;
 
         CacheEntry(String key, int cacheTime){
             this.key = key;
             this.cacheTime = cacheTime;
-            this.valueLastUpdated = -1;
-            this.hasValue = false;
+            this.dataLastUpdated = -1;
         }
 
         public boolean hasExpired(){
             boolean expired = false;
 
-            if(cacheTime == NO_CACHE || valueLastUpdated == -1 || !hasValue) {
+            if(cacheTime == NO_CACHE || isEmpty()) {
                 expired = true;
-                valueLastUpdated = 0;
-            }else if(cacheTime == FOREVER_CACHE){
+            } else if(cacheTime == FOREVER_CACHE){
                 expired = false;
-            } else if(valueLastUpdated > 0){
-                expired = System.currentTimeMillis() > valueLastUpdated + (cacheTime*1000);
+            } else if(!isEmpty()){
+                expired = System.currentTimeMillis() > dataLastUpdated + (cacheTime*1000);
             }
 
             return expired;
         }
 
-        public void notifyObservers(boolean forceNotify){
-            if(!hasExpired() || forceNotify) {
-
-                //loop through observers and notify as well as record those that are temporary for removal
-                //after notification.
-                List<Observer> temporary = new ArrayList<>();
-                for (Observer observer : observers) {
-                    observer.onChanged(data);
-                    if(isTemporaryObserver(observer)){
-                        temporary.add(observer);
-                    }
-                }
-
-                //remove the temporary observers
-                for(Observer tempObserver : temporary){
-                    unobserve(tempObserver);
-                }
-
-                //set the value of the observing live data objects
-                for (MutableLiveData liveData : liveDataList) {
-                    liveData.setValue(data);
-                }
+        public boolean requiresUpdating(){
+            if(hasExpired() && !waitingForData){
+                waitingForData = true;
+                return true;
+            } else {
+                return false;
             }
         }
 
-        public void notifyObservers(){
-            notifyObservers(false);
-        }
+        @Override
+        public void updateData(Object newValue){
+            super.updateData(newValue);
+            waitingForData = false;
+            dataLastUpdated = System.currentTimeMillis();
 
-        public void updateValue(Object newValue){
-            data = newValue;
-            hasValue = true;
-            valueLastUpdated = System.currentTimeMillis();
-
-            notifyObservers(true);
             Log.i("CacheEntry", "Updated value for " + key);
         }
 
 
-        public void expireOnNextCall(){
-            this.valueLastUpdated = -1;
+        public void forceExpire(){
+            this.dataLastUpdated = -1;
         }
 
-        public <T> CacheEntry add(MutableLiveData<T> liveData){
+        @Override
+        public DataStore<T> add(MutableLiveData<T> liveData){
             //if the cache data is still fresh and it has a value then we trigger the live data upon adding
             //if the cache data has expired then the live data object will be set when the cache is updated
             //with a fresh value
-            if(!hasExpired() && hasValue){
-                liveData.setValue((T)data);
+            if(!hasExpired() && !isEmpty()){
+                liveData.setValue(getData());
             }
+            super.add(liveData);
 
-            if(!liveDataList.contains(liveData)){
-                liveDataList.add(liveData);
-            }
             return this;
         }
 
-        public void remove(MutableLiveData liveData){
-            if(liveDataList.contains(liveData)){
-                liveDataList.remove(liveData);
-            }
-        }
 
-        private boolean isTemporaryObserver(Observer observer){
-            return observer.getClass().isSynthetic();
-        }
-
-        public <T> CacheEntry observe(Observer<T> observer){
-            if(!observers.contains(observer)){
+        public DataStore<T> observe(Observer<T> observer){
+            if(!hasObserver(observer)){
                 boolean add2list = !isTemporaryObserver(observer);
-                if(!hasExpired()){
-                    observer.onChanged((T)data);
+                if(!hasExpired() && !waitingForData){
+                    observer.onChanged(getData());
                 } else {
                     add2list = true;
                 }
 
                 if(add2list){
-                    observers.add(observer);
+                    super.observe(observer);
                 }
             }
             return this;
-        }
-
-        public void unobserve(Observer observer){
-            if(observers.contains(observer)){
-                observers.remove(observer);
-            }
         }
     }
 
@@ -163,43 +121,62 @@ public class DataCache {
         this.defaultCacheTime = cacheTime;
     }
 
-    public CacheEntry getCacheEntry(String key, int cacheTime){
-        CacheEntry cacheEntry;
+    public <T> CacheEntry<T> getCacheEntry(String key, ITypeConverter<T> typeConverter, int cacheTime){
+        CacheEntry<T> cacheEntry;
         if(cache.containsKey(key)){
             cacheEntry = cache.get(key);
         } else {
-            cacheEntry = new CacheEntry(key, cacheTime);
+            cacheEntry = new CacheEntry<T>(key, cacheTime);
             cache.put(key, cacheEntry);
+        }
+        if(typeConverter != null){
+            cacheEntry.setTypeConverter(typeConverter);
         }
         return cacheEntry;
     }
 
-    public CacheEntry getCacheEntry(String key){
-        return this.getCacheEntry(key, defaultCacheTime);
+    public <T> CacheEntry<T> getCacheEntry(String key){
+        return this.<T>getCacheEntry(key, null, defaultCacheTime);
     }
 
-    public void setExpireOnNextCall(List<String> keys, boolean include){
+    public <T> CacheEntry<T> getCacheEntry(String key, ITypeConverter<T> typeConverter){
+        return this.<T>getCacheEntry(key, typeConverter, defaultCacheTime);
+    }
+
+    public boolean isCacheEntry(String key){
+        return cache.containsKey(key);
+    }
+
+    public boolean entryIsEmpty(String key){
+        if(isCacheEntry(key)) {
+            return cache.get(key).isEmpty();
+        } else {
+            return true;
+        }
+    }
+
+    public void forceExpire(List<String> keys, boolean include){
         for(Map.Entry <String, CacheEntry> entry : cache.entrySet()){
             if(keys == null || (keys.contains(entry.getKey()) ? include : !include)){
-                entry.getValue().expireOnNextCall();
+                entry.getValue().forceExpire();
             }
         }
     }
 
-    public boolean setExpireOnNextCall(String key){
+    public boolean forceExpire(String key){
         if(cache.containsKey(key)){
-            cache.get(key).expireOnNextCall();
+            cache.get(key).forceExpire();
             return true;
         } else {
             return false;
         }
     }
 
-    public void setExpireOnNextCall(String ... keys){
-        setExpireOnNextCall(Arrays.asList(keys), true);
+    public void forceExpire(String ... keys){
+        forceExpire(Arrays.asList(keys), true);
     }
 
-    public void setExpireOnNextCall(){
-        setExpireOnNextCall(null, true);
+    public void forceExpire(){
+        forceExpire(null, true);
     }
 }
