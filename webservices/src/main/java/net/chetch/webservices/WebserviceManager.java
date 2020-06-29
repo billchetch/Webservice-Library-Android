@@ -2,15 +2,19 @@ package net.chetch.webservices;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 
 import net.chetch.utilities.CalendarTypeAdapater;
+import net.chetch.utilities.DelegateTypeAdapter;
 import net.chetch.utilities.DelegateTypeAdapterFactory;
 
 import java.util.Calendar;
 import java.util.HashMap;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -26,32 +30,20 @@ public class WebserviceManager {
         if(!apiBaseURL.endsWith("/"))apiBaseURL += "/";
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        httpClient.addInterceptor(chain -> {
-            Request original = chain.request();
-            //String noCache = Long.toString(System.currentTimeMillis());
-
-            Request request = original.newBuilder()
-                    .header("User-Agent", ws.userAgent)
-                    .method(original.method(), original.body())
-                    .build();
-
-            return chain.proceed(request);
-        });
-
-
-        OkHttpClient client = httpClient.build();
-
-        DelegateTypeAdapterFactory delegateTypeAdapterFactory = new DelegateTypeAdapterFactory();
-        if(ws.typeAdapterClasses != null) {
-            for(Class c : ws.typeAdapterClasses){
-                delegateTypeAdapterFactory.addTypeAdapater(c);
+        httpClient.addInterceptor(ws);
+        if(ws.typeAdapters != null) {
+            for(DelegateTypeAdapter ta : ws.typeAdapters){
+                if(ta instanceof Interceptor){
+                    httpClient.addInterceptor((Interceptor)ta);
+                }
             }
         }
+        OkHttpClient client = httpClient.build();
 
         Gson gson = new GsonBuilder()
                 .setDateFormat(ws.dateFormat)
                 .registerTypeAdapter(Calendar.class, new CalendarTypeAdapater(ws.dateFormat))
-                .registerTypeAdapterFactory(delegateTypeAdapterFactory)
+                .registerTypeAdapterFactory(ws.typeAdapterFactory)
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()

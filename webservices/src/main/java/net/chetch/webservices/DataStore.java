@@ -2,6 +2,7 @@ package net.chetch.webservices;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +48,13 @@ public class DataStore<T> {
         //after notification.
         List<Observer> temporary = new ArrayList<>();
         for (Observer observer : observers) {
-            observer.onChanged(data);
-            if(isTemporaryObserver(observer)){
-                temporary.add(observer);
+            try {
+                observer.onChanged(data);
+                if (isTemporaryObserver(observer)) {
+                    temporary.add(observer);
+                }
+            } catch (Exception e){
+                Log.e("DataStore", e.getMessage());
             }
         }
 

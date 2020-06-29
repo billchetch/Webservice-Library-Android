@@ -17,11 +17,15 @@ public class Employees<E extends Employee> extends DataObjectCollection<E> {
         super(ccls, icls);
     }
 
-    public Employees active(boolean active){
+    public <C extends Employees> C active(boolean active){
         return filter("active", active ? 1 : 0);
     }
 
-    public Employees active(){
+    public <C extends Employees> C inactive(){
+        return active(false);
+    }
+
+    public <C extends Employees> C active(){
         return active(true);
     }
 

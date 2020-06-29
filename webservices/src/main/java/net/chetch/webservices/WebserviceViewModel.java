@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class WebserviceViewModel extends ViewModel {
 
-    NetworkRepository networkRepository = NetworkRepository.getInstance();
+    protected NetworkRepository networkRepository = NetworkRepository.getInstance();
     MutableLiveData<Throwable> error = new MutableLiveData<>();
     HashMap<String, WebserviceRepository> repos = new HashMap<>();
 
@@ -78,12 +78,16 @@ public class WebserviceViewModel extends ViewModel {
     }
 
     public void loadData(Observer observer){
-        configureServices(observer);
+        loadServices(observer);
     }
 
     protected void notifyObserver(Observer observer, Object data){
         if(observer != null){
-            observer.onChanged(data);
+            try {
+                observer.onChanged(data);
+            } catch (Exception e){
+                Log.e("MVM", e.getMessage());
+            }
         }
     }
 
@@ -92,27 +96,35 @@ public class WebserviceViewModel extends ViewModel {
         repo.synchronise(networkRepository);
     }
 
-    protected DataStore configureServices(Observer observer) {
-        return networkRepository.getServices().observe(services -> {
+    protected void configureServices(Services services) {
+        if(!networkRepository.isSynchronisedWithServer(0)){
+            networkRepository.adjustForServerTimeDifference(true);
+        }
 
-            for(Map.Entry<String, WebserviceRepository> entry : repos.entrySet()) {
-                try {
-                    String serviceName = entry.getKey();
-                    WebserviceRepository repo = entry.getValue();
-                    if (services.hasService(serviceName)) {
-                        configureRepoService(repo, services.getService(serviceName));
-                    } else {
-                        throw new Exception("There is no service with name " + serviceName);
-                    }
-                } catch (Exception e) {
-                    Log.e("MVM", e.getMessage());
-                    error.setValue(e);
+        for(Map.Entry<String, WebserviceRepository> entry : repos.entrySet()) {
+            try {
+                String serviceName = entry.getKey();
+                WebserviceRepository repo = entry.getValue();
+                if (services.hasService(serviceName)) {
+                    configureRepoService(repo, services.getService(serviceName));
+                } else {
+                    throw new Exception("There is no service with name " + serviceName);
                 }
+            } catch (Exception e) {
+                Log.e("MVM", e.getMessage());
+                error.setValue(e);
             }
+        }
+    }
 
+    protected DataStore loadServices(Observer observer){
+        return networkRepository.getServices().observe(services -> {
+            configureServices(services);
             servicesConfigured = true;
             notifyObserver(observer, services);
             Log.i("MVM", "Network services: " + services.size());
         });
     }
+
+
 }

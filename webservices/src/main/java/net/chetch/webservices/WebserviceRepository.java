@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.util.Log;
 
+import net.chetch.utilities.DelegateTypeAdapter;
 import net.chetch.utilities.Utils;
 import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.exceptions.WebserviceException;
@@ -27,6 +28,7 @@ public class WebserviceRepository<S> implements Observer{
 
     protected Webservice<S> webservice;
     protected S service;
+    protected DataObjectTypeAdapter dataObjectTypeAdapter = new DataObjectTypeAdapter();
 
     private boolean serviceAvailable = true;
     private Calendar serviceLastAvailable = null;
@@ -40,6 +42,7 @@ public class WebserviceRepository<S> implements Observer{
     public WebserviceRepository(Webservice<S> webservice, int defaultCacheTime){
         this.webservice = webservice;
 
+        this.webservice.addTypeAdapter(dataObjectTypeAdapter);
         setDefaultCacheTime(defaultCacheTime);
     }
 
@@ -126,8 +129,8 @@ public class WebserviceRepository<S> implements Observer{
             try {
                 Calendar serverTime = Utils.parseDate(dt, Webservice.DEFAULT_DATE_FORMAT);
                 Calendar now = Calendar.getInstance();
-                serverTimeDifference = now.getTimeInMillis() - serverTime.getTimeInMillis();
-                serverTimeTolerance = callbackInfo.responseTime;
+                serverTimeTolerance = callbackInfo.responseTime / 2;
+                serverTimeDifference = serverTime.getTimeInMillis() + serverTimeTolerance - now.getTimeInMillis();
 
             } catch (Exception e){
                 Log.e("WebserviceRespoitory", "handleResponseHeaders " + e.getMessage());
@@ -136,23 +139,13 @@ public class WebserviceRepository<S> implements Observer{
     }
 
     protected void handleResponse(Response response){
-        //do nothing atm .. can be overriden if required
+        //stub to overwrite if required
     }
 
     public void synchronise(WebserviceRepository otherRepo){
         serverTimeDifference = otherRepo.getServerTimeDifference();
         serverTimeTolerance = otherRepo.getServerTimeTolerance();
-    }
-
-    public boolean isSynchronisedWithServer(int toleranceInSecs){
-        if(serverTimeTolerance < 0){ //means no server communication yet
-            return false;
-        }
-        return Math.abs(serverTimeDifference) <= serverTimeTolerance + toleranceInSecs*1000;
-    }
-
-    public boolean isSynchronisedWithServer() {
-        return isSynchronisedWithServer(0);
+        dataObjectTypeAdapter.adjustForServerTimeDifference = otherRepo.dataObjectTypeAdapter.adjustForServerTimeDifference;
     }
 
     public long getServerTimeDifference(){
@@ -160,13 +153,25 @@ public class WebserviceRepository<S> implements Observer{
     }
 
     public long getServerTimeTolerance(){
-        return serverTimeDifference;
+        return serverTimeTolerance;
     }
 
     public Calendar getServerTime(){
-        Calendar now = Calendar.getInstance();
-        now.setTimeInMillis(now.getTimeInMillis() - serverTimeDifference);
-        return now;
+        return getServerTime(Calendar.getInstance());
+    }
+
+    public Calendar getServerTime(Calendar localCal){
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(localCal.getTimeInMillis() + serverTimeDifference);
+        return c;
+    }
+
+    public boolean isSynchronisedWithServer(int toleranceInSecs){
+        return Math.abs(serverTimeDifference) <= serverTimeTolerance + toleranceInSecs*1000;
+    }
+
+    public void adjustForServerTimeDifference(boolean adjust){
+        dataObjectTypeAdapter.adjustForServerTimeDifference = adjust;
     }
 
     public void setAPIBaseURL(String apiBaseURL) throws Exception{

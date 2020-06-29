@@ -39,7 +39,8 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
         super.handleResponse(response);
 
         if(response.body() instanceof Employees){
-            for(Employee emp : (Employees<Employee>)response.body()){
+            for(Object obj : (Employees)response.body()){
+                Employee emp = (Employee)obj;
                 String key = "profile-pic-" + emp.getEmployeeID();
                 if(!cache.entryIsEmpty(key)){
                     emp.profileImage = cache.<Bitmap>getCacheEntry(key).getData();
@@ -49,11 +50,12 @@ public class EmployeesRepository extends WebserviceRepository<IEmployeesService>
     }
 
     public DataStore<AboutService> getAbout(){
-        DataCache.CacheEntry<AboutService> entry = cache.getCacheEntry("about-service");
+        //DataCache.CacheEntry<AboutService> entry = cache.getCacheEntry("about-service");
 
-        if(entry.requiresUpdating()) {
+        DataStore<AboutService> entry = new DataStore<>(); //cache.getCacheEntry("about-service");
+        //if(entry.requiresUpdating()) {
             service.getAbout().enqueue(createCallback(entry));
-        }
+        //}
 
         return entry;
     }

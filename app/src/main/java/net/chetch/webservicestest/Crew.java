@@ -10,4 +10,5 @@ public class Crew extends Employees<CrewMember> {
     public Crew(){
         super(Crew.class, CrewMember.class);
     }
+
 }

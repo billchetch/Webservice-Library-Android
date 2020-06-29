@@ -2,6 +2,7 @@ package net.chetch.webservices.employees;
 
 import android.graphics.Bitmap;
 import android.media.Image;
+import android.util.Log;
 
 import net.chetch.webservices.DataObject;
 import net.chetch.webservices.DataObjectCollection;

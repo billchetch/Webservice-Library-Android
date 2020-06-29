@@ -4,10 +4,13 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import net.chetch.webservices.DataCache;
+import net.chetch.webservices.DataObjectCollection;
+import net.chetch.webservices.DataStore;
 import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.employees.Employee;
 import net.chetch.webservices.employees.Employees;
@@ -37,6 +40,16 @@ public class MainViewModel extends WebserviceViewModel {
         //addRepo("GPS", gpsRepository);
     }
 
+
+    @Override
+    protected void configureServices(Services services) {
+        if(!networkRepository.isSynchronisedWithServer(0)){
+            networkRepository.adjustForServerTimeDifference(true);
+        }
+
+        super.configureServices(services);
+    }
+
     @Override
     public void loadData(Observer observer){
 
@@ -52,6 +65,9 @@ public class MainViewModel extends WebserviceViewModel {
                 Log.i("Main", "loadData: employees loaded");
             });*/
 
+            crewRepository.getAbout().observe(about->{
+               Log.i("Main", "About ya");
+            });
 
             crewRepository.getCrew().add(liveDataCrew).observe(crew->{
                 crewRepository.getProfilePics(crew).observe(bms -> {

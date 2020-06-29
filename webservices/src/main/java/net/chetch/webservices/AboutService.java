@@ -5,6 +5,10 @@ import java.util.HashMap;
 
 public class AboutService extends DataObject {
 
+    public AboutService(){
+        super();
+    }
+
     public Calendar getServerTime(String dateFormat){
         return getCalendar("server_time", dateFormat);
     }

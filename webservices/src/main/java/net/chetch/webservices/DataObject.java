@@ -10,6 +10,13 @@ import java.util.Calendar;
 abstract public class DataObject extends HashMap<String, String> {
 
     private transient HashMap<String, Object> oldValues = new HashMap<>();
+    private transient long serverTimeDifference = 0; //number of millis diff (+ve server is ahead, -ve server is behind)
+    private transient boolean adjustForServerTimeDifference = false;
+
+    public void setServerTimeDifference(boolean adjustForDifference, long diff){
+        adjustForServerTimeDifference = adjustForDifference;
+        serverTimeDifference = diff;
+    }
 
     public Integer getInteger(String fieldName){
         if(!containsKey(fieldName) || get(fieldName) == null){
@@ -53,6 +60,9 @@ abstract public class DataObject extends HashMap<String, String> {
         Calendar cal = Calendar.getInstance();
         try {
            cal.setTime(f.parse(dateString));
+           if(adjustForServerTimeDifference) {
+               cal.setTimeInMillis(cal.getTimeInMillis() - serverTimeDifference);
+           }
            return cal;
         } catch (Exception e) {
             return null;
