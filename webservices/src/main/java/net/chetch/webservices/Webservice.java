@@ -22,7 +22,9 @@ public class Webservice<S> implements Interceptor{
     static public final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss Z";
     static public final String DEFAULT_DATE_ONLY_FORMAT = "yyyy-MM-dd Z";
     static public final String DEFAULT_USER_AGENT = "ChetchAndroidWebservice";
+
     static public final String HEADER_SERVER_TIME = "X-Server-Time";
+    static public final String HEADER_DATE_FORMAT = "X-Date-Format";
 
     public String dateFormat = DEFAULT_DATE_FORMAT;
     public String dateOnlyFormat = DEFAULT_DATE_ONLY_FORMAT;

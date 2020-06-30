@@ -12,36 +12,26 @@ public class Employee extends DataObject {
     public transient Bitmap profileImage;
 
     public String getEmployeeID(){
-        return getString("employee_id");
+        return getValue("employee_id").toString();
     }
 
     public String getKnownAs(){
-        return getString("known_as");
+        return getCasted("known_as");
     }
 
     public String getFullName(){
-        return getString("full_name");
+        return getCasted("full_name");
     }
 
     public void setActive(boolean active){
-        set("active", active ? 1 : 0);
+        setValue("active", active ? 1 : 0);
     }
 
     public boolean isActive(){
-        return getInteger("active") == 1;
+        return this.<Integer>getCasted("active") == 1;
     }
 
-    @Override
-    public Object getCasted(String fieldName){
-        switch(fieldName){
-            case "position_id":
-            case "active":
-                return getInteger(fieldName);
 
-            default:
-                return super.getCasted(fieldName);
-        }
-    }
 
     @Override
     public boolean read(DataObject dataObject) {

@@ -1,95 +1,65 @@
 package net.chetch.webservices;
 
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Calendar;
+import java.util.Map;
+import java.util.regex.Pattern;
 
-abstract public class DataObject extends HashMap<String, String> {
+abstract public class DataObject extends HashMap<String, DataField> {
 
     private transient HashMap<String, Object> oldValues = new HashMap<>();
-    private transient long serverTimeDifference = 0; //number of millis diff (+ve server is ahead, -ve server is behind)
-    private transient boolean adjustForServerTimeDifference = false;
 
-    public void setServerTimeDifference(boolean adjustForDifference, long diff){
-        adjustForServerTimeDifference = adjustForDifference;
-        serverTimeDifference = diff;
-    }
-
-    public Integer getInteger(String fieldName){
-        if(!containsKey(fieldName) || get(fieldName) == null){
-            return 0;
-        } else {
-            return Integer.parseInt(get(fieldName));
+    public void init(){
+        for(String fieldName : keySet()){
+            get(fieldName).setName(fieldName);
         }
     }
 
-    public double getDouble(String fieldName){
-        if(!containsKey(fieldName) || get(fieldName) == null){
-            return 0.0;
-        } else {
-            return Double.parseDouble(get(fieldName));
-        }
+    public DataField getField(String fieldName){
+        return containsKey(fieldName) ? get(fieldName) : null;
     }
 
-    public long getLong(String fieldName){
-        if(!containsKey(fieldName) || get(fieldName) == null){
-            return 0;
-        } else {
-            return Long.parseLong(get(fieldName));
-        }
+    public boolean hasField(String fieldName){
+        return containsKey(fieldName);
     }
 
-    public String getString(String fieldName){
-        if(!containsKey(fieldName)){
-            return null;
-        } else {
-            return get(fieldName);
-        }
+    public <T> T getCasted(String fieldName){
+        return getCasted(fieldName, null);
     }
 
-    public Calendar getCalendar(String fieldName, String dateFormat){
-        if(!containsKey(fieldName)) {
-            return null;
-        }
-
-        String dateString = get(fieldName);
-        SimpleDateFormat f = new SimpleDateFormat(dateFormat);
-        Calendar cal = Calendar.getInstance();
-        try {
-           cal.setTime(f.parse(dateString));
-           if(adjustForServerTimeDifference) {
-               cal.setTimeInMillis(cal.getTimeInMillis() - serverTimeDifference);
-           }
-           return cal;
-        } catch (Exception e) {
-            return null;
-        }
+    public <T> T getCasted(String fieldName, Object defaultValue){
+        return (T)getValue(fieldName, defaultValue);
     }
 
-    public Calendar getCalendar(String fieldName) {
-        return getCalendar(fieldName, Webservice.DEFAULT_DATE_FORMAT);
+    public Object getValue(String fieldName){
+        return getValue(fieldName, null);
     }
 
-    public Object getCasted(String fieldName){
-        switch(fieldName){
-            case "id":
-                return getInteger(fieldName);
-
-            default:
-                return getString(fieldName);
-        }
+    public Object getValue(String fieldName, Object defaultValue){
+        DataField field = getField(fieldName);
+        return field == null ? defaultValue : field.getValue();
     }
 
     public Comparable getComparable(String fieldName) {
-        return (Comparable)getCasted(fieldName);
+        return (Comparable)getValue(fieldName);
     }
 
-    public void set(String fieldName, Object fieldValue){
-        oldValues.put(fieldName, getCasted(fieldName));
-        put(fieldName, fieldValue == null ? null : fieldValue.toString());
+
+    public void setValue(String fieldName, Object fieldValue){
+        DataField field;
+        if(!hasField(fieldName)) {
+            field = new DataField(fieldName);
+        } else {
+            field = getField(fieldName);
+        }
+        field.setValue(fieldValue);
+        put(fieldName, field);
+        oldValues.put(fieldName, fieldValue);
     }
 
     public void unset(String fieldName){
@@ -97,7 +67,7 @@ abstract public class DataObject extends HashMap<String, String> {
         remove(fieldName);
     }
 
-    public Integer getID(){ return (Integer)getCasted("id"); }
+    public Integer getID(){ return getCasted("id", 0); }
 
     public boolean isDirty(){
         if(getID() == 0) { //a client side created object
@@ -106,7 +76,7 @@ abstract public class DataObject extends HashMap<String, String> {
             for(String fieldName : oldValues.keySet()){
                 Object oldValue = oldValues.get(fieldName);
                 if(oldValue == null){
-                    return oldValue == get(fieldName);
+                    return oldValue == getValue(fieldName);
                 } else {
                     try {
                         return !equals(fieldName, oldValue);
@@ -145,7 +115,7 @@ abstract public class DataObject extends HashMap<String, String> {
     }
 
     public boolean equals(String fieldName, Object v2){
-        Object v1 = getCasted(fieldName);
+        Object v1 = getValue(fieldName);
 
         if(v1 == null && v2 == null){
             return true;
@@ -157,7 +127,7 @@ abstract public class DataObject extends HashMap<String, String> {
     }
 
     public boolean equals(String fieldName, DataObject dataObject){
-        return equals(fieldName, dataObject.getCasted(fieldName));
+        return equals(fieldName, dataObject.getValue(fieldName));
     }
 
     @Override
@@ -184,8 +154,8 @@ abstract public class DataObject extends HashMap<String, String> {
         if(dataObject == null)return true;
 
         for(String fieldName : dataObject.keySet()){
-            String newFieldValue = dataObject.get(fieldName);
-            put(fieldName, newFieldValue);
+            DataField field = dataObject.getField(fieldName);
+            put(fieldName, field);
             if(oldValues.containsKey(fieldName)){
                 oldValues.remove(fieldName);
             }

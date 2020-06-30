@@ -1,6 +1,5 @@
 package net.chetch.webservices;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 
 import net.chetch.webservices.exceptions.WebserviceException;

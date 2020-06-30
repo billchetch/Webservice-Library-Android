@@ -5,19 +5,15 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.util.Log;
 
-import net.chetch.utilities.DelegateTypeAdapter;
 import net.chetch.utilities.Utils;
-import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.exceptions.WebserviceException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
-import okhttp3.Cache;
 import okhttp3.Headers;
 import retrofit2.Response;
 
@@ -29,6 +25,7 @@ public class WebserviceRepository<S> implements Observer{
     protected Webservice<S> webservice;
     protected S service;
     protected DataObjectTypeAdapter dataObjectTypeAdapter = new DataObjectTypeAdapter();
+    protected DataFieldTypeAdapter dataFieldValueTypeAdapter = new DataFieldTypeAdapter();
 
     private boolean serviceAvailable = true;
     private Calendar serviceLastAvailable = null;
@@ -42,7 +39,12 @@ public class WebserviceRepository<S> implements Observer{
     public WebserviceRepository(Webservice<S> webservice, int defaultCacheTime){
         this.webservice = webservice;
 
+        if(dataFieldValueTypeAdapter.defaultDateFormat == null){
+            dataFieldValueTypeAdapter.defaultDateFormat = webservice.dateFormat;
+        }
+
         this.webservice.addTypeAdapter(dataObjectTypeAdapter);
+        this.webservice.addTypeAdapter(dataFieldValueTypeAdapter);
         setDefaultCacheTime(defaultCacheTime);
     }
 
@@ -145,7 +147,7 @@ public class WebserviceRepository<S> implements Observer{
     public void synchronise(WebserviceRepository otherRepo){
         serverTimeDifference = otherRepo.getServerTimeDifference();
         serverTimeTolerance = otherRepo.getServerTimeTolerance();
-        dataObjectTypeAdapter.adjustForServerTimeDifference = otherRepo.dataObjectTypeAdapter.adjustForServerTimeDifference;
+        dataFieldValueTypeAdapter.adjustForServerTimeDifference = otherRepo.dataFieldValueTypeAdapter.adjustForServerTimeDifference;
     }
 
     public long getServerTimeDifference(){
@@ -171,7 +173,7 @@ public class WebserviceRepository<S> implements Observer{
     }
 
     public void adjustForServerTimeDifference(boolean adjust){
-        dataObjectTypeAdapter.adjustForServerTimeDifference = adjust;
+        dataFieldValueTypeAdapter.adjustForServerTimeDifference = adjust;
     }
 
     public void setAPIBaseURL(String apiBaseURL) throws Exception{

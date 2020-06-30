@@ -4,14 +4,14 @@ import net.chetch.webservices.DataObject;
 
 public class GPSPosition extends DataObject {
     public double getLatitude() {
-        return getDouble("latitude");
+        return getCasted("latitude");
     }
 
     public double getLongitude() {
-        return getDouble("longitude");
+        return getCasted("longitude");
     }
 
     public Calendar getUpdated() {
-        return getCalendar("updated");
+        return getCasted("updated");
     }
 }

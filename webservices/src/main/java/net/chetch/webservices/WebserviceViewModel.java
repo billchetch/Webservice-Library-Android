@@ -6,9 +6,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
-import net.chetch.webservices.employees.Employees;
-import net.chetch.webservices.employees.EmployeesRepository;
-import net.chetch.webservices.gps.GPSRepository;
+import net.chetch.webservices.exceptions.WebserviceViewModelException;
 import net.chetch.webservices.network.NetworkRepository;
 import net.chetch.webservices.network.Services;
 import net.chetch.webservices.network.Service;
@@ -18,11 +16,19 @@ import java.util.Map;
 
 public class WebserviceViewModel extends ViewModel {
 
+    protected enum ServerTimeDisparityOptions{
+        ERROR,
+        ADUST,
+        LOG_WARNING
+    }
+
     protected NetworkRepository networkRepository = NetworkRepository.getInstance();
     MutableLiveData<Throwable> error = new MutableLiveData<>();
     HashMap<String, WebserviceRepository> repos = new HashMap<>();
 
     protected boolean servicesConfigured = false;
+    protected int permissableServerTimeDifference = 60; //in seconds
+    protected ServerTimeDisparityOptions serverTimeDisparityOption = ServerTimeDisparityOptions.ERROR;
 
     public WebserviceViewModel() {
         observeError(networkRepository);
@@ -31,7 +37,7 @@ public class WebserviceViewModel extends ViewModel {
     protected void observeError(WebserviceRepository<?> repo){
         repo.getError().observeForever(t ->{
             error.setValue(t);
-            Log.e("MVM", "Network repo" + t.getMessage());
+            Log.e("WSVM", "Network repo" + t.getMessage());
         });
     }
 
@@ -40,7 +46,7 @@ public class WebserviceViewModel extends ViewModel {
             //String apiBaseURL = "http://192.168.43.123:8002/api/";
             networkRepository.setAPIBaseURL(apiBaseURL);
         } catch (Exception e) {
-            Log.e("MVM", e.getMessage());
+            Log.e("WSVM", e.getMessage());
             error.setValue(e);
             return;
         }
@@ -86,9 +92,13 @@ public class WebserviceViewModel extends ViewModel {
             try {
                 observer.onChanged(data);
             } catch (Exception e){
-                Log.e("MVM", e.getMessage());
+                Log.e("WSVM", e.getMessage());
             }
         }
+    }
+
+    protected ServerTimeDisparityOptions getServerTimeDisparityOption(long serverTimeDifference){
+        return serverTimeDisparityOption;
     }
 
     protected void configureRepoService(WebserviceRepository<?> repo, Service service) throws Exception{
@@ -96,11 +106,27 @@ public class WebserviceViewModel extends ViewModel {
         repo.synchronise(networkRepository);
     }
 
-    protected void configureServices(Services services) {
-        if(!networkRepository.isSynchronisedWithServer(0)){
-            networkRepository.adjustForServerTimeDifference(true);
+    protected boolean configureServices(Services services) {
+        if(!networkRepository.isSynchronisedWithServer(permissableServerTimeDifference)){
+            long diff = networkRepository.getServerTimeDifference();
+            ServerTimeDisparityOptions option = getServerTimeDisparityOption(diff);
+            String message = "Server is not synchronised.  Time difference is " + diff + "ms, permissable difference is " + permissableServerTimeDifference*1000 + "ms";
+            switch(option){
+                case ERROR:
+                    error.setValue(new WebserviceViewModelException(message));
+                    Log.e("WSVM", message);
+                    return false;
+                case ADUST:
+                    networkRepository.adjustForServerTimeDifference(true);
+                    Log.i("WSVM", message + "... Setting repos to adjust for time difference");
+                    break;
+                case LOG_WARNING:
+                    Log.w("WSVM", message);
+                    break;
+            }
         }
 
+        boolean configured = true;
         for(Map.Entry<String, WebserviceRepository> entry : repos.entrySet()) {
             try {
                 String serviceName = entry.getKey();
@@ -111,18 +137,23 @@ public class WebserviceViewModel extends ViewModel {
                     throw new Exception("There is no service with name " + serviceName);
                 }
             } catch (Exception e) {
-                Log.e("MVM", e.getMessage());
+                Log.e("WSVM", e.getMessage());
                 error.setValue(e);
+                configured = false;
             }
         }
+        return configured;
     }
 
     protected DataStore loadServices(Observer observer){
         return networkRepository.getServices().observe(services -> {
-            configureServices(services);
-            servicesConfigured = true;
-            notifyObserver(observer, services);
-            Log.i("MVM", "Network services: " + services.size());
+            servicesConfigured = configureServices(services);
+            if(servicesConfigured) {
+                notifyObserver(observer, services);
+                Log.i("WSVM", "Network services: " + services.size());
+            } else {
+                Log.e("WSVM", "Services failed to be configured");
+            }
         });
     }
 

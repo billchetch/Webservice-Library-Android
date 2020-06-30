@@ -35,20 +35,14 @@ public class MainViewModel extends WebserviceViewModel {
     public MainViewModel(){
         super();
 
+        permissableServerTimeDifference = 1;
+        serverTimeDisparityOption = ServerTimeDisparityOptions.LOG_WARNING;
+
         //addRepo(employeesRepository);
         addRepo(crewRepository);
         //addRepo("GPS", gpsRepository);
     }
 
-
-    @Override
-    protected void configureServices(Services services) {
-        if(!networkRepository.isSynchronisedWithServer(0)){
-            networkRepository.adjustForServerTimeDifference(true);
-        }
-
-        super.configureServices(services);
-    }
 
     @Override
     public void loadData(Observer observer){
@@ -70,6 +64,11 @@ public class MainViewModel extends WebserviceViewModel {
             });
 
             crewRepository.getCrew().add(liveDataCrew).observe(crew->{
+
+                crew.sort("known_as", DataObjectCollection.SortOptions.DESC);
+                Crew f = crew.filter("known_as","Test");
+                CrewMember m = crew.get("known_as", "Test");
+
                 crewRepository.getProfilePics(crew).observe(bms -> {
 
 
@@ -92,5 +91,11 @@ public class MainViewModel extends WebserviceViewModel {
 
     public void refreshEmployees(){
         employeesRepository.getEmployees().notifyObservers();
+    }
+
+    public void addEmployee(Employee emp){
+        crewRepository.addEmployee(emp).observe(newEmp->{
+            Log.i("MVM", "New employee added");
+        });
     }
 }

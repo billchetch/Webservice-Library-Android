@@ -9,16 +9,12 @@ public class AboutService extends DataObject {
         super();
     }
 
-    public Calendar getServerTime(String dateFormat){
-        return getCalendar("server_time", dateFormat);
-    }
-
     public Calendar getServerTime(){
-        return getServerTime(Webservice.DEFAULT_DATE_FORMAT);
+        return getCasted("server_time");
     }
 
     public String getVersion(){
-        return getString("api_version");
+        return getCasted("api_version");
     }
 
 }

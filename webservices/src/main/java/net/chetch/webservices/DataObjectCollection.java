@@ -245,7 +245,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
 
     private <T> void populateFieldMap(FieldMap<T> fieldMap, String fieldName) throws Exception{
         for(D dataObject : this){
-            fieldMap.put((T)dataObject.getCasted(fieldName), dataObject);
+            fieldMap.put((T)dataObject.getValue(fieldName), dataObject);
         }
     }
 

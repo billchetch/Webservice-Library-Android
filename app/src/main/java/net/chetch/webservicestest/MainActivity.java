@@ -7,7 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import net.chetch.webservices.DataObject;
 import net.chetch.webservices.DataStore;
+import net.chetch.webservices.Webservice;
 import net.chetch.webservices.employees.Employee;
 import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.network.NetworkRepository;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         model = ViewModelProviders.of(this).get(MainViewModel.class);
         model.getError().observe(this, t ->{
-            Log.e("Main", "Error: " + t.getMessage());
+            Log.e("Main", "MODEL ERROR!!!!!!!!!!!: " + t.getMessage());
         });
 
 
@@ -48,11 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
         model.getEmployees().observe(this, employees->{
             log("YOOOOO" + employees.size() + " employees " + Calendar.getInstance().getTimeInMillis());
-        });
+        });*/
 
 
 
-        //build repository
         try {
 
             Button btn = findViewById(R.id.button);
@@ -67,13 +68,19 @@ public class MainActivity extends AppCompatActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    model.loadData();
+                    Employee emp = new Employee();
+                    emp.setValue("employee_id", "xxxx");
+                    emp.setValue("last_name", "Cron");
+                    emp.setValue("first_name", "Test");
+                    emp.setValue("position_id", 1);
+
+                    model.addEmployee(emp);
                 }
             });
 
         } catch (Exception e){
             Log.e("Main", e.getMessage());
-        }*/
+        }
     }
 
 
