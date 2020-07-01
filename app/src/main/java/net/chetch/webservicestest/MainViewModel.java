@@ -28,6 +28,7 @@ public class MainViewModel extends WebserviceViewModel {
     GPSRepository gpsRepository = GPSRepository.getInstance();
     EmployeesRepository employeesRepository = EmployeesRepository.getInstance();
     CrewRepository crewRepository = CrewRepository.getInstance().getInstance();
+    CaptainsLogRepository logRepository = CaptainsLogRepository.getInstance();
 
     MutableLiveData<Employees> liveDataEmployees = new MutableLiveData<>();
     MutableLiveData<Crew> liveDataCrew = new MutableLiveData<>();
@@ -40,6 +41,8 @@ public class MainViewModel extends WebserviceViewModel {
 
         //addRepo(employeesRepository);
         addRepo(crewRepository);
+        addRepo(logRepository);
+
         //addRepo("GPS", gpsRepository);
     }
 
@@ -59,11 +62,15 @@ public class MainViewModel extends WebserviceViewModel {
                 Log.i("Main", "loadData: employees loaded");
             });*/
 
-            crewRepository.getAbout().observe(about->{
+            /*crewRepository.getAbout().observe(about->{
                Log.i("Main", "About ya");
+            });*/
+
+            logRepository.getCrewStats().observe(stats->{
+                Log.i("MVM", "Crew stats");
             });
 
-            crewRepository.getCrew().add(liveDataCrew).observe(crew->{
+            /*crewRepository.getCrew().add(liveDataCrew).observe(crew->{
 
                 crew.sort("known_as", DataObjectCollection.SortOptions.DESC);
                 Crew f = crew.filter("known_as","Test");
@@ -81,7 +88,7 @@ public class MainViewModel extends WebserviceViewModel {
                 });
 
                 Log.i("Main", "loadData: crew loaded");
-            });
+            });*/
         });
     }
 

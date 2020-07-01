@@ -67,6 +67,48 @@ abstract public class DataObject extends HashMap<String, DataField> {
         remove(fieldName);
     }
 
+    protected void asEnum(String fieldName, Class<? extends Enum> enumClass){
+        DataField field = getField(fieldName);
+        if(field != null){
+            Object value = field.getValue();
+            if(value != null){
+                field.setValue(Enum.valueOf(enumClass, value.toString()));
+            }
+        }
+    }
+
+    protected void asString(String fieldName){
+        DataField field = getField(fieldName);
+        if(field != null){
+            Object value = field.getValue();
+            if(value != null)field.setValue(value.toString());
+        }
+    }
+
+    protected void asInteger(String fieldName){
+        DataField field = getField(fieldName);
+        if(field != null){
+            Object value = field.getValue();
+            if(value != null)field.setValue(Integer.parseInt(value.toString()));
+        }
+    }
+
+    protected void asLong(String fieldName){
+        DataField field = getField(fieldName);
+        if(field != null){
+            Object value = field.getValue();
+            if(value != null)field.setValue(Long.parseLong(value.toString()));
+        }
+    }
+
+    protected void asDouble(String fieldName){
+        DataField field = getField(fieldName);
+        if(field != null){
+            Object value = field.getValue();
+            if(value != null)field.setValue(Double.parseDouble(value.toString()));
+        }
+    }
+
     public Integer getID(){ return getCasted("id", 0); }
 
     public boolean isDirty(){

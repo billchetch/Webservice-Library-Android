@@ -54,7 +54,7 @@ public class DataStore<T> {
                     temporary.add(observer);
                 }
             } catch (Exception e){
-                Log.e("DataStore", e.getMessage());
+                Log.e("DataStore", "notifyObservers: " + e.getMessage());
             }
         }
 
@@ -65,7 +65,7 @@ public class DataStore<T> {
 
         //set the value of the observing live data objects
         for (MutableLiveData liveData : liveDataList) {
-            liveData.setValue(data);
+            liveData.postValue(data);
         }
     }
 

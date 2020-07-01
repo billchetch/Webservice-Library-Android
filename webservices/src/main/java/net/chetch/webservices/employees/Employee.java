@@ -11,8 +11,16 @@ public class Employee extends DataObject {
 
     public transient Bitmap profileImage;
 
+
+    @Override
+    public void init() {
+        super.init();
+
+        asString("employee_id");
+    }
+
     public String getEmployeeID(){
-        return getValue("employee_id").toString();
+        return getCasted("employee_id");
     }
 
     public String getKnownAs(){

@@ -101,7 +101,15 @@ public class DataFieldTypeAdapter extends DelegateTypeAdapter<DataField> impleme
 
     @Override
     public DataField read(JsonReader in) throws IOException {
-        Object obj = objectTypeAdapter.read(in);
+        Object obj;
+        switch(in.peek()){
+            case NUMBER:
+                obj = in.nextString(); //to avoid automatic doubles
+                break;
+
+            default:
+                obj = objectTypeAdapter.read(in);
+        }
         Object value = null;
         if(obj instanceof String){
             String valueAsString = obj.toString();
