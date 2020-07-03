@@ -85,6 +85,12 @@ abstract public class DataObject extends HashMap<String, DataField> {
         }
     }
 
+    protected void asString(String ... fieldNames){
+        for(String fieldName : fieldNames){
+            asString(fieldName);
+        }
+    }
+
     protected void asInteger(String fieldName){
         DataField field = getField(fieldName);
         if(field != null){
@@ -107,6 +113,16 @@ abstract public class DataObject extends HashMap<String, DataField> {
             Object value = field.getValue();
             if(value != null)field.setValue(Double.parseDouble(value.toString()));
         }
+    }
+
+    protected void asDouble(String ... fieldNames){
+        for(String fieldName : fieldNames){
+            asDouble(fieldName);
+        }
+    }
+
+    public boolean isNew(){
+        return getID() == 0;
     }
 
     public Integer getID(){ return getCasted("id", 0); }

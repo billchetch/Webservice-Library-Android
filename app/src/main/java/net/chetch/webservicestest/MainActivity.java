@@ -12,6 +12,7 @@ import net.chetch.webservices.DataStore;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.employees.Employee;
 import net.chetch.webservices.employees.Employees;
+import net.chetch.webservices.gps.GPSPosition;
 import net.chetch.webservices.network.NetworkRepository;
 
 import java.util.Calendar;
@@ -47,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         model.getGPSPosition().observe(this, pos->{
 
-            Log.i("Main", "Returned GPS position: " + pos.getLatitude() + "/" + pos.getLongitude());
+            String s = "Returned GPS position: " + pos.getLatitude() + "/" + pos.getLongitude() + ", speed: " + pos.getSpeed(GPSPosition.SpeedUnits.KPH);
+            Log.i("Main", s);
         });
 
 
