@@ -51,6 +51,10 @@ public class GPSPosition extends DataObject {
         return speed;
     }
 
+    public Double getSpeed() {
+        return getSpeed(SpeedUnits.MPS);
+    }
+
     public Integer getBearing(){
         return getCasted("bearing");
     }
