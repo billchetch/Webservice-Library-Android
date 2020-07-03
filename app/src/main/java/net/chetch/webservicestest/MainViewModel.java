@@ -15,6 +15,7 @@ import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.employees.Employee;
 import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.employees.EmployeesRepository;
+import net.chetch.webservices.gps.GPSPosition;
 import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
 import net.chetch.webservices.network.Services;
@@ -32,6 +33,7 @@ public class MainViewModel extends WebserviceViewModel {
 
     MutableLiveData<Employees> liveDataEmployees = new MutableLiveData<>();
     MutableLiveData<Crew> liveDataCrew = new MutableLiveData<>();
+    MutableLiveData<GPSPosition> liveDataGPSPosition = new MutableLiveData<>();
 
     public MainViewModel(){
         super();
@@ -42,8 +44,7 @@ public class MainViewModel extends WebserviceViewModel {
         //addRepo(employeesRepository);
         addRepo(crewRepository);
         addRepo(logRepository);
-
-        //addRepo("GPS", gpsRepository);
+        addRepo(gpsRepository);
     }
 
 
@@ -51,6 +52,7 @@ public class MainViewModel extends WebserviceViewModel {
     public void loadData(Observer observer){
 
         super.loadData(data->{
+
             /*employeesRepository.getEmployees().observe(employees ->{
                 employeesRepository.getProfilePics(employees).observe(bms->{
 
@@ -89,6 +91,7 @@ public class MainViewModel extends WebserviceViewModel {
 
                 Log.i("Main", "loadData: crew loaded");
             });*/
+            notifyObserver(observer, data);
         });
     }
 
@@ -104,5 +107,14 @@ public class MainViewModel extends WebserviceViewModel {
         crewRepository.addEmployee(emp).observe(newEmp->{
             Log.i("MVM", "New employee added");
         });
+    }
+
+    public LiveData<GPSPosition> getGPSPosition(){
+        return liveDataGPSPosition;
+    }
+
+    public LiveData<GPSPosition> getLatestGPSPosition(){
+        gpsRepository.getLatestPosition().add(liveDataGPSPosition);
+        return liveDataGPSPosition;
     }
 }

@@ -22,6 +22,8 @@ public class GPSRepository extends WebserviceRepository<IGPSService>{
 
     public GPSRepository() {
         super(new Webservice(IGPSService.class));
+
+        setDefaultCacheTime(DataCache.VERY_SHORT_CACHE);
     }
 
     public DataStore<GPSPosition> getLatestPosition(){

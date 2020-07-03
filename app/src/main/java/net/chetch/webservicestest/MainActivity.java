@@ -42,15 +42,13 @@ public class MainActivity extends AppCompatActivity {
 
         model.loadData(data->{
             Log.i("Main", "Loaded data");
+            model.getLatestGPSPosition();
         });
 
-        /*model.getEmployees().observe(this, employees->{
-            log("Has " + employees.size() + " employees " + Calendar.getInstance().getTimeInMillis());
-        });
+        model.getGPSPosition().observe(this, pos->{
 
-        model.getEmployees().observe(this, employees->{
-            log("YOOOOO" + employees.size() + " employees " + Calendar.getInstance().getTimeInMillis());
-        });*/
+            Log.i("Main", "Returned GPS position: " + pos.getLatitude() + "/" + pos.getLongitude());
+        });
 
 
 
@@ -60,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    model.refreshEmployees();
+                    model.getLatestGPSPosition();
+
                 }
             });
 
@@ -68,13 +67,7 @@ public class MainActivity extends AppCompatActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Employee emp = new Employee();
-                    emp.setValue("employee_id", "xxxx");
-                    emp.setValue("last_name", "Cron");
-                    emp.setValue("first_name", "Test");
-                    emp.setValue("position_id", 1);
 
-                    model.addEmployee(emp);
                 }
             });
 
