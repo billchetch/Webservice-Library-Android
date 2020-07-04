@@ -54,7 +54,8 @@ public class DataStore<T> {
                     temporary.add(observer);
                 }
             } catch (Exception e){
-                Log.e("DataStore", "notifyObservers: " + e.getMessage());
+                Log.e("DataStore", "notifyObservers: " + e.getMessage() + (data == null ? "" : ", data: " + data.getClass()));
+                e.printStackTrace();
             }
         }
 

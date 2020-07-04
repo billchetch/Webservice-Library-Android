@@ -1,5 +1,6 @@
 package net.chetch.webservicestest;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import net.chetch.webservices.DataObject;
 import net.chetch.webservices.DataStore;
 import net.chetch.webservices.Webservice;
+import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.employees.Employee;
 import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.gps.GPSPosition;
@@ -21,6 +23,12 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     MainViewModel model;
+    Observer dataLoadObserver = obj -> {
+        WebserviceViewModel.LoadProgress progress = (WebserviceViewModel.LoadProgress)obj;
+        String state = progress.startedLoading ? "loading" : "loaded";
+        Log.i("Main", "load observer " + state + " " + progress.info);
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,18 +49,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        model.loadData(data->{
-            Log.i("Main", "Loaded data");
-            model.getLatestGPSPosition();
-        });
-
-        model.getGPSPosition().observe(this, pos->{
-
-            String s = "Returned GPS position: " + pos.getLatitude() + "/" + pos.getLongitude() + ", speed: " + pos.getSpeed(GPSPosition.SpeedUnits.KPH);
-            Log.i("Main", s);
-        });
-
-
+        model.loadData(dataLoadObserver);
 
         try {
 

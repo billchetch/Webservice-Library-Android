@@ -22,10 +22,39 @@ public class WebserviceViewModel extends ViewModel {
         LOG_WARNING
     }
 
+    public class LoadProgress{
+        public String info;
+        public Object dataLoaded;
+        public int loadedCount = -1;
+        public boolean startedLoading = false;
+        public boolean finishedLoading = false;
+
+        public void reset(){
+            info = null;
+            loadedCount = 0;
+            startedLoading = false;
+            finishedLoading = false;
+            dataLoaded = null;
+        }
+
+        public void start(){
+            startedLoading = true;
+            finishedLoading = false;
+        }
+
+        public void stop(Object dataLoaded){
+            startedLoading = false;
+            finishedLoading = true;
+            this.dataLoaded = dataLoaded;
+            loadedCount++;
+        }
+    }
+
     protected NetworkRepository networkRepository = NetworkRepository.getInstance();
     MutableLiveData<Throwable> error = new MutableLiveData<>();
     HashMap<String, WebserviceRepository> repos = new HashMap<>();
 
+    protected LoadProgress loadProgress = new LoadProgress();
     protected boolean servicesConfigured = false;
     protected int permissableServerTimeDifference = 60; //in seconds
     protected ServerTimeDisparityOptions serverTimeDisparityOption = ServerTimeDisparityOptions.ERROR;
@@ -83,8 +112,9 @@ public class WebserviceViewModel extends ViewModel {
         loadData(null);
     }
 
-    public void loadData(Observer observer){
-        loadServices(observer);
+    public DataStore loadData(Observer observer){
+        loadProgress.reset();
+        return loadServices(observer);
     }
 
     protected void notifyObserver(Observer observer, Object data){
@@ -95,6 +125,25 @@ public class WebserviceViewModel extends ViewModel {
                 Log.e("WSVM", e.getMessage());
             }
         }
+    }
+
+    protected void notifyLoading(Observer observer, String info){
+        notifyLoading(observer, info, null);
+    }
+
+    protected void notifyLoading(Observer observer, String info, Object dataPreviouslyLoaded){
+        if(dataPreviouslyLoaded != null){
+            notifyLoaded(observer, dataPreviouslyLoaded);
+        }
+
+        loadProgress.start();
+        loadProgress.info = info;
+        notifyObserver(observer, loadProgress);
+    }
+
+    protected void notifyLoaded(Observer observer, Object data){
+        loadProgress.stop(data);
+        notifyObserver(observer, loadProgress);
     }
 
     protected ServerTimeDisparityOptions getServerTimeDisparityOption(long serverTimeDifference){
@@ -145,11 +194,12 @@ public class WebserviceViewModel extends ViewModel {
         return configured;
     }
 
-    protected DataStore loadServices(Observer observer){
+    protected DataStore<Services> loadServices(Observer observer){
+        notifyLoading(observer, "Services");
         return networkRepository.getServices().observe(services -> {
             servicesConfigured = configureServices(services);
             if(servicesConfigured) {
-                notifyObserver(observer, services);
+                notifyLoaded(observer, services);
                 Log.i("WSVM", "Network services: " + services.size());
             } else {
                 Log.e("WSVM", "Services failed to be configured");

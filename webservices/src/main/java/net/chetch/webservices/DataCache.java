@@ -84,7 +84,7 @@ public class DataCache {
             //if the cache data has expired then the live data object will be set when the cache is updated
             //with a fresh value
             if(!hasExpired() && !isEmpty()){
-                liveData.setValue(getData());
+                liveData.postValue(getData());
             }
             super.add(liveData);
 

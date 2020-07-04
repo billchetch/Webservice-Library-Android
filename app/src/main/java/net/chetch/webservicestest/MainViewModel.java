@@ -41,36 +41,33 @@ public class MainViewModel extends WebserviceViewModel {
         permissableServerTimeDifference = 1;
         serverTimeDisparityOption = ServerTimeDisparityOptions.LOG_WARNING;
 
-        //addRepo(employeesRepository);
-        addRepo(crewRepository);
+        addRepo(employeesRepository);
+        //addRepo(crewRepository);
         addRepo(logRepository);
         addRepo(gpsRepository);
     }
 
 
     @Override
-    public void loadData(Observer observer){
+    public DataStore<?> loadData(Observer observer){
+        DataStore<?> dataStore = super.loadData(observer);
+        dataStore.observe(data->{
 
-        super.loadData(data->{
-
+            notifyLoading(observer, "Employees");
             /*employeesRepository.getEmployees().observe(employees ->{
-                employeesRepository.getProfilePics(employees).observe(bms->{
-
-                    employeesRepository.getCacheEntry("employees").forceExpire();
-                    employeesRepository.getEmployees();
-                    Log.i("Main", "loadData: profile pics loaded");
+                notifyLoading(observer, "GPS", employees);
+                gpsRepository.getLatestPosition().observe(gps ->{
+                    notifyLoaded(observer, gps);
                 });
-
-                Log.i("Main", "loadData: employees loaded");
-            });*/
+            });
 
             /*crewRepository.getAbout().observe(about->{
                Log.i("Main", "About ya");
             });*/
 
-            logRepository.getCrewStats().observe(stats->{
+            /*logRepository.getCrewStats().observe(stats->{
                 Log.i("MVM", "Crew stats");
-            });
+            });*/
 
             /*crewRepository.getCrew().add(liveDataCrew).observe(crew->{
 
@@ -91,8 +88,9 @@ public class MainViewModel extends WebserviceViewModel {
 
                 Log.i("Main", "loadData: crew loaded");
             });*/
-            notifyObserver(observer, data);
         });
+
+        return dataStore;
     }
 
     public LiveData<Employees> getEmployees(){
