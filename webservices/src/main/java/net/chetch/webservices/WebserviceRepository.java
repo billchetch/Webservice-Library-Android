@@ -84,38 +84,43 @@ public class WebserviceRepository<S> implements Observer{
     }
 
     protected void handleServiceError(Throwable t) {
-        WebserviceException wsx = null;
-
-        if (t instanceof SocketTimeoutException || t instanceof ConnectException || t instanceof UnknownHostException) {
-            serviceErrorCode = ERROR_SERVICE_UNREACHABLE;
-            serviceAvailable = false;
-
-            //wait a certain time and then reset the serviceAvailable to try again
-            serviceLastAvailable = Calendar.getInstance();
-            serviceErrorMessage = "Service unreachable due to " + t.getClass().getName();
-            wsx = new WebserviceException(serviceErrorMessage, serviceErrorCode, t);
-            setError(wsx);
-            return;
-        }
-
         if (t instanceof WebserviceException) {
-            wsx = ((WebserviceException) t);
-            switch (wsx.getHttpCode()) {
-                case 404:
-                    serviceAvailable = true;
-                    break;
+            WebserviceException wsx = ((WebserviceException) t);
 
-                case 500:
-                    serviceAvailable = true;
-                    break;
-
-                default:
-                    serviceLastAvailable = Calendar.getInstance();
+            Throwable origThrow = wsx.getThrowable();
+            if(origThrow != null){
+                if (origThrow instanceof SocketTimeoutException || origThrow instanceof ConnectException || origThrow instanceof UnknownHostException) {
+                    serviceErrorCode = ERROR_SERVICE_UNREACHABLE;
                     serviceAvailable = false;
-                    break;
 
+                    //wait a certain time and then reset the serviceAvailable to try again
+                    serviceLastAvailable = Calendar.getInstance();
+                    serviceErrorMessage = "Service unreachable due to " + origThrow.getClass().getName();
+                    t = new WebserviceException(serviceErrorMessage, serviceErrorCode, t);
+                }
+            } else {
+                switch (wsx.getHttpCode()) {
+                    case 404:
+                        serviceAvailable = true;
+                        break;
+
+                    case 500:
+                        serviceAvailable = true;
+                        break;
+
+                    default:
+                        serviceLastAvailable = Calendar.getInstance();
+                        serviceAvailable = false;
+                        break;
+
+                }
             }
-        }
+
+            if(!serviceAvailable && wsx.getDataStore() != null && wsx.getDataStore() instanceof DataCache.CacheEntry){
+                ((DataCache.CacheEntry)wsx.getDataStore()).forceExpire();
+            }
+
+        } // end of test if WebserviceException
 
         setError(t);
     }

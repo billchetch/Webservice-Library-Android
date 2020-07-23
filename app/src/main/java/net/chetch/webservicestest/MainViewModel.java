@@ -51,10 +51,10 @@ public class MainViewModel extends WebserviceViewModel {
     @Override
     public DataStore<?> loadData(Observer observer){
         DataStore<?> dataStore = super.loadData(observer);
-        dataStore.observe(data->{
+        /*dataStore.observe(data->{
 
             notifyLoading(observer, "Employees");
-            /*employeesRepository.getEmployees().observe(employees ->{
+            employeesRepository.getEmployees().observe(employees ->{
                 notifyLoading(observer, "GPS", employees);
                 gpsRepository.getLatestPosition().observe(gps ->{
                     notifyLoaded(observer, gps);
@@ -87,8 +87,8 @@ public class MainViewModel extends WebserviceViewModel {
                 });
 
                 Log.i("Main", "loadData: crew loaded");
-            });*/
-        });
+            });
+        });*/
 
         return dataStore;
     }

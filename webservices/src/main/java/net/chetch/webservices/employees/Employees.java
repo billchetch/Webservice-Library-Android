@@ -36,4 +36,8 @@ public class Employees<E extends Employee> extends DataObjectCollection<E> {
             return null;
         }
     }
+
+    public E getByEmployeeID(String employeeID){
+        return get("employee_id", employeeID);
+    }
 }

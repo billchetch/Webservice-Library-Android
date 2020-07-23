@@ -1,4 +1,6 @@
 package net.chetch.webservices.gps;
+import android.location.Location;
+
 import java.util.Calendar;
 
 import net.chetch.utilities.Utils;
@@ -12,23 +14,41 @@ public class GPSPosition extends DataObject {
         NPH,
         MPS
     }
+
+    public GPSPosition(){
+
+    }
+
+    public GPSPosition(android.location.Location location){
+        setLatitude(location.getLatitude());
+        setLongitude(location.getLongitude());
+    }
+
     @Override
     public void init() {
         super.init();
 
-        asDouble("latitude", "longitude" ,"speed_mps");
+        asDouble("latitude", "longitude" ,"speed");
+        asInteger("bearing");
     }
 
     public double getLatitude() {
         return getCasted("latitude");
     }
+    public void setLatitude(double latitude){
+        setValue("latitude", latitude);
+    }
+
 
     public double getLongitude() {
         return getCasted("longitude");
     }
+    public void setLongitude(double longitude){
+        setValue("longitude", longitude);
+    }
 
     public Double getSpeed(SpeedUnits speedUnit) {
-        Double speedMPS = getCasted("speed_mps");
+        Double speedMPS = getCasted("speed");
         Double speed = null;
         switch(speedUnit){
             case KPH:
@@ -68,4 +88,17 @@ public class GPSPosition extends DataObject {
         return getCasted("updated");
     }
 
+    public float distanceTo(GPSPosition pos){
+        Location l1 = asLocation();
+        Location l2 = pos.asLocation();
+        return l1.distanceTo(l2);
+
+    }
+
+    public Location asLocation(){
+        Location l = new Location("");
+        l.setLatitude(getLatitude());
+        l.setLongitude(getLongitude());
+        return l;
+    }
 }

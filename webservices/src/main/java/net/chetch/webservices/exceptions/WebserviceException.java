@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
+import net.chetch.webservices.DataStore;
+
 import retrofit2.Response;
 
 public class WebserviceException extends Exception {
@@ -39,6 +41,7 @@ public class WebserviceException extends Exception {
     }
 
     private Throwable throwable;
+    private DataStore dataStore;
     private int errorCode;
     private int httpCode;
     private boolean serviceAvailable = true;
@@ -60,6 +63,13 @@ public class WebserviceException extends Exception {
         this.errorCode = errorCode;
     }
 
+    public WebserviceException(Throwable t){
+        this(t.getMessage(), 0);
+        throwable = t;
+    }
+
+
+
     public void setServiceAvailable(boolean available){
         serviceAvailable = available;
     }
@@ -71,4 +81,7 @@ public class WebserviceException extends Exception {
     public int getHttpCode(){ return httpCode; }
     public void setErrorCode(int errorCode){ this.errorCode = errorCode; }
     public int getErrorCode(){ return errorCode; }
+    public void setDataStore(DataStore dataStore){ this.dataStore = dataStore; }
+    public DataStore getDataStore(){ return dataStore; }
+    public Throwable getThrowable(){ return throwable; }
 }

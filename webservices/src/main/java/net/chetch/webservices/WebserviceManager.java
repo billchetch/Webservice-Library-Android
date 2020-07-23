@@ -10,6 +10,7 @@ import net.chetch.utilities.DelegateTypeAdapterFactory;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -30,6 +31,8 @@ public class WebserviceManager {
         if(!apiBaseURL.endsWith("/"))apiBaseURL += "/";
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.connectTimeout(ws.connectTimeout, TimeUnit.SECONDS);
+
         httpClient.addInterceptor(ws);
         if(ws.typeAdapters != null) {
             for(DelegateTypeAdapter ta : ws.typeAdapters){

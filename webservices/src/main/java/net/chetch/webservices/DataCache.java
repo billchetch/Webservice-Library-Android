@@ -75,6 +75,7 @@ public class DataCache {
 
 
         public void forceExpire(){
+            this.waitingForData = false;
             this.dataLastUpdated = -1;
         }
 
