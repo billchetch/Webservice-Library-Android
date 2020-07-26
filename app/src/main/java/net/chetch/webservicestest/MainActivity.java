@@ -49,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        model.loadData(dataLoadObserver);
+        model.loadData(dataLoadObserver).observe(data->{
+            Log.i("Main", "loaded data");
+        });
 
         try {
 

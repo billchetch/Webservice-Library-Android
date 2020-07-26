@@ -22,14 +22,19 @@ public class GPSPosition extends DataObject {
     public GPSPosition(android.location.Location location){
         setLatitude(location.getLatitude());
         setLongitude(location.getLongitude());
+        if(location.hasBearing()){
+            setValue("bearing", location.getBearing());
+        }
+        if(location.hasSpeed()){
+            setValue("speed", location.getSpeed());
+        }
     }
 
     @Override
     public void init() {
         super.init();
 
-        asDouble("latitude", "longitude" ,"speed");
-        asInteger("bearing");
+        asDouble("latitude", "longitude" ,"speed", "bearing");
     }
 
     public double getLatitude() {
@@ -75,13 +80,13 @@ public class GPSPosition extends DataObject {
         return getSpeed(SpeedUnits.MPS);
     }
 
-    public Integer getBearing(){
+    public Double getBearing(){
         return getCasted("bearing");
     }
 
     public String getCompassHeading(){
-        Integer bearing = getBearing();
-        return Utils.convert(bearing, Utils.Conversions.DEG_2_COMPASS);
+        double bearing = getBearing();
+        return Utils.convert((int)bearing, Utils.Conversions.DEG_2_COMPASS);
     }
 
     public Calendar getUpdated() {

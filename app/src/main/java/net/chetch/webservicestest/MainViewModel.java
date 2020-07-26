@@ -51,45 +51,6 @@ public class MainViewModel extends WebserviceViewModel {
     @Override
     public DataStore<?> loadData(Observer observer){
         DataStore<?> dataStore = super.loadData(observer);
-        /*dataStore.observe(data->{
-
-            notifyLoading(observer, "Employees");
-            employeesRepository.getEmployees().observe(employees ->{
-                notifyLoading(observer, "GPS", employees);
-                gpsRepository.getLatestPosition().observe(gps ->{
-                    notifyLoaded(observer, gps);
-                });
-            });
-
-            /*crewRepository.getAbout().observe(about->{
-               Log.i("Main", "About ya");
-            });*/
-
-            /*logRepository.getCrewStats().observe(stats->{
-                Log.i("MVM", "Crew stats");
-            });*/
-
-            /*crewRepository.getCrew().add(liveDataCrew).observe(crew->{
-
-                crew.sort("known_as", DataObjectCollection.SortOptions.DESC);
-                Crew f = crew.filter("known_as","Test");
-                CrewMember m = crew.get("known_as", "Test");
-
-                crewRepository.getProfilePics(crew).observe(bms -> {
-
-
-                    crewRepository.getCacheEntry("crew").forceExpire();
-                    crewRepository.getCrew().observe(crewAgain->{
-                       notifyObserver(observer, crewAgain);
-                    });
-
-                    Log.i("Main", "loadData: crew profile pics loaded");
-                });
-
-                Log.i("Main", "loadData: crew loaded");
-            });
-        });*/
-
         return dataStore;
     }
 
