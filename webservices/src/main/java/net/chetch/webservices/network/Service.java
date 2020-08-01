@@ -1,5 +1,7 @@
 package net.chetch.webservices.network;
 
+import android.util.Log;
+
 import net.chetch.webservices.DataObject;
 
 import java.util.Arrays;
@@ -7,12 +9,13 @@ import java.util.List;
 
 public class Service extends DataObject {
 
-    @Override
-    public void init() {
-        super.init();
 
+    @Override
+    public void initialise() {
+        super.initialise();
         asInteger("endpoint_port");
     }
+
 
     public boolean supportsProtocol(String protocol){
         List<String> protocols = Arrays.asList(getValue("protocols").toString().split(","));

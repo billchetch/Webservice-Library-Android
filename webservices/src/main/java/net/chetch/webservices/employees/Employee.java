@@ -13,8 +13,8 @@ public class Employee extends DataObject {
 
 
     @Override
-    public void init() {
-        super.init();
+    public void initialise() {
+        super.initialise();
 
         asString("employee_id");
     }

@@ -32,7 +32,7 @@ public class DataObjectTypeAdapter extends DelegateTypeAdapter<DataObject>{
     @Override
     public DataObject read(JsonReader in) throws IOException {
         DataObject dataObject = delegate.read(in);
-        dataObject.init();
+        dataObject.initialise();
         return dataObject;
     }
 }

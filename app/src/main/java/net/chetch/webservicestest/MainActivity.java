@@ -15,6 +15,7 @@ import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.employees.Employee;
 import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.gps.GPSPosition;
+import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
 
 import java.util.Calendar;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         model.loadData(dataLoadObserver).observe(data->{
             Log.i("Main", "loaded data");
+            //model.getLatestGPSPosition();
         });
 
         try {
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    model.loadData(dataLoadObserver);
+                    model.getLatestGPSPosition();
 
                 }
             });

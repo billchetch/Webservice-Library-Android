@@ -43,7 +43,7 @@ public class MainViewModel extends WebserviceViewModel {
 
         addRepo(employeesRepository);
         //addRepo(crewRepository);
-        addRepo(logRepository);
+        //addRepo(logRepository);
         addRepo(gpsRepository);
     }
 

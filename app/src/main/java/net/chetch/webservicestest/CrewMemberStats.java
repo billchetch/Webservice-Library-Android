@@ -11,12 +11,12 @@ public class CrewMemberStats extends DataObject {
         IDLE
     }
 
-    @Override
+    /*@Override
     public void init() {
         super.init();
 
         asEnum("current_state", State.class);
-    }
+    }*/
 
     public Calendar getStartedDuty(){
         return getCasted("started_duty");

@@ -31,8 +31,8 @@ public class GPSPosition extends DataObject {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void initialise() {
+        super.initialise();
 
         asDouble("latitude", "longitude" ,"speed", "bearing");
     }

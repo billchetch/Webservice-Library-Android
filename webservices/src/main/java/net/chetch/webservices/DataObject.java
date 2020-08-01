@@ -14,7 +14,11 @@ abstract public class DataObject extends HashMap<String, DataField> {
 
     private transient HashMap<String, Object> oldValues = new HashMap<>();
 
-    public void init(){
+    public DataObject(){
+
+    }
+
+    public void initialise(){
         for(String fieldName : keySet()){
             get(fieldName).setName(fieldName);
         }
