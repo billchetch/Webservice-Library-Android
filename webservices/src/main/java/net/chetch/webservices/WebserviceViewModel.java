@@ -207,5 +207,7 @@ public class WebserviceViewModel extends ViewModel {
         });
     }
 
-
+    public boolean isServicesConfigured(){
+        return servicesConfigured;
+    }
 }
