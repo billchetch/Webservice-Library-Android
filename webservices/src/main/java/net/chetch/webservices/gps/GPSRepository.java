@@ -1,16 +1,12 @@
 package net.chetch.webservices.gps;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import net.chetch.webservices.DataCache;
 import net.chetch.webservices.DataStore;
 import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceRepository;
-import net.chetch.webservices.employees.EmployeesRepository;
-import net.chetch.webservices.network.Services;
-
-import java.util.Calendar;
 
 public class GPSRepository extends WebserviceRepository<IGPSService>{
 

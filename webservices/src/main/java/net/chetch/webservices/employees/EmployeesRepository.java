@@ -1,9 +1,8 @@
 package net.chetch.webservices.employees;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import net.chetch.utilities.Utils;
 import net.chetch.webservices.AboutService;

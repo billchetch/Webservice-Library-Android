@@ -1,15 +1,12 @@
 package net.chetch.webservicestest;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
-import android.provider.ContactsContract;
-import android.support.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
-import net.chetch.webservices.DataCache;
-import net.chetch.webservices.DataObjectCollection;
 import net.chetch.webservices.DataStore;
 import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.employees.Employee;
@@ -17,11 +14,6 @@ import net.chetch.webservices.employees.Employees;
 import net.chetch.webservices.employees.EmployeesRepository;
 import net.chetch.webservices.gps.GPSPosition;
 import net.chetch.webservices.gps.GPSRepository;
-import net.chetch.webservices.network.NetworkRepository;
-import net.chetch.webservices.network.Services;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainViewModel extends WebserviceViewModel {
 

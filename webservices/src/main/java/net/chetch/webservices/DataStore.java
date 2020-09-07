@@ -1,7 +1,7 @@
 package net.chetch.webservices;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import android.util.Log;
 
 import java.util.ArrayList;

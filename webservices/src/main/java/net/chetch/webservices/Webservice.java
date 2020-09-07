@@ -1,10 +1,7 @@
 package net.chetch.webservices;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
-
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import net.chetch.utilities.DelegateTypeAdapter;
 import net.chetch.utilities.DelegateTypeAdapterFactory;

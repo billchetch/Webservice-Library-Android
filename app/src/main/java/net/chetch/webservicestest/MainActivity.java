@@ -1,24 +1,15 @@
 package net.chetch.webservicestest;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
-import android.support.v7.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import net.chetch.webservices.DataObject;
-import net.chetch.webservices.DataStore;
-import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceViewModel;
-import net.chetch.webservices.employees.Employee;
-import net.chetch.webservices.employees.Employees;
-import net.chetch.webservices.gps.GPSPosition;
-import net.chetch.webservices.gps.GPSRepository;
 import net.chetch.webservices.network.NetworkRepository;
-
-import java.util.Calendar;
 
 
 public class MainActivity extends AppCompatActivity {
