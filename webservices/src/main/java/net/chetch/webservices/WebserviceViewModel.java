@@ -53,6 +53,7 @@ public class WebserviceViewModel extends ViewModel {
     protected NetworkRepository networkRepository = NetworkRepository.getInstance();
     MutableLiveData<Throwable> error = new MutableLiveData<>();
     HashMap<String, WebserviceRepository> repos = new HashMap<>();
+    DataStore<Services> servicesDataStore;
 
     protected LoadProgress loadProgress = new LoadProgress();
     protected boolean servicesConfigured = false;
@@ -195,19 +196,21 @@ public class WebserviceViewModel extends ViewModel {
     }
 
     protected DataStore<Services> loadServices(Observer observer){
-        notifyLoading(observer, "Services");
-        return networkRepository.getServices().observe(services -> {
-            servicesConfigured = configureServices(services);
-            if(servicesConfigured) {
-                notifyLoaded(observer, services);
-                Log.i("WSVM", "Network services: " + services.size());
-            } else {
-                Log.e("WSVM", "Services failed to be configured");
-            }
-        });
+        if(!isServicesConfigured()){
+            servicesDataStore = networkRepository.getServices().observe(services -> {
+                servicesConfigured = configureServices(services);
+                if (servicesConfigured) {
+                    notifyLoaded(observer, services);
+                    Log.i("WSVM", "Network services: " + services.size());
+                } else {
+                    Log.e("WSVM", "Services failed to be configured");
+                }
+            });
+        }
+        return servicesDataStore;
     }
 
     public boolean isServicesConfigured(){
-        return servicesConfigured;
+        return servicesDataStore != null && servicesConfigured;
     }
 }
