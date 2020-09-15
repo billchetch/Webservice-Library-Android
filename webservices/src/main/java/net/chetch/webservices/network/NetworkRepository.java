@@ -23,7 +23,7 @@ public class NetworkRepository extends WebserviceRepository<INetworkService> {
 
 
     public DataStore<Services> getServices(){
-        DataCache.CacheEntry<Services> entry = cache.getCacheEntry("services");
+        DataCache.CacheEntry<Services> entry = cache.getCacheEntry("services", DataCache.FOREVER_CACHE);
 
         if(entry.requiresUpdating()) {
             service.getServices().enqueue(createCallback(entry));

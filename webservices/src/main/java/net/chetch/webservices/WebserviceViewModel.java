@@ -53,7 +53,6 @@ public class WebserviceViewModel extends ViewModel {
     protected NetworkRepository networkRepository = NetworkRepository.getInstance();
     MutableLiveData<Throwable> error = new MutableLiveData<>();
     HashMap<String, WebserviceRepository> repos = new HashMap<>();
-    DataStore<Services> servicesDataStore;
 
     protected LoadProgress loadProgress = new LoadProgress();
     protected boolean servicesConfigured = false;
@@ -84,6 +83,15 @@ public class WebserviceViewModel extends ViewModel {
 
     public LiveData<Throwable> getError() {
         return error;
+    }
+
+    protected void setError(Throwable t){
+        error.postValue(t);
+    }
+
+    protected void setError(String errmsg){
+        WebserviceViewModelException e = new WebserviceViewModelException(errmsg);
+        setError(e);
     }
 
     public WebserviceRepository addRepo(String serviceName, WebserviceRepository<?> repo) throws Exception {
@@ -196,21 +204,18 @@ public class WebserviceViewModel extends ViewModel {
     }
 
     protected DataStore<Services> loadServices(Observer observer){
-        if(!isServicesConfigured()){
-            servicesDataStore = networkRepository.getServices().observe(services -> {
-                servicesConfigured = configureServices(services);
-                if (servicesConfigured) {
-                    notifyLoaded(observer, services);
-                    Log.i("WSVM", "Network services: " + services.size());
-                } else {
-                    Log.e("WSVM", "Services failed to be configured");
-                }
-            });
-        }
-        return servicesDataStore;
+        return networkRepository.getServices().observe(services -> {
+            servicesConfigured = configureServices(services);
+            if (servicesConfigured) {
+                notifyLoaded(observer, services);
+                Log.i("WSVM", "Network services: " + services.size());
+            } else {
+                Log.e("WSVM", "Services failed to be configured");
+            }
+        });
     }
 
     public boolean isServicesConfigured(){
-        return servicesDataStore != null && servicesConfigured;
+        return servicesConfigured;
     }
 }

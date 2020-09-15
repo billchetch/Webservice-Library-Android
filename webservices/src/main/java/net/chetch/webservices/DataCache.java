@@ -136,6 +136,10 @@ public class DataCache {
         return this.<T>getCacheEntry(key, null, defaultCacheTime);
     }
 
+    public <T> CacheEntry<T> getCacheEntry(String key, int cacheTime){
+        return this.<T>getCacheEntry(key, null, cacheTime);
+    }
+
     public <T> CacheEntry<T> getCacheEntry(String key, ITypeConverter<T> typeConverter){
         return this.<T>getCacheEntry(key, typeConverter, defaultCacheTime);
     }
