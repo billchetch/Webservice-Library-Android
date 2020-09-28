@@ -65,7 +65,7 @@ public class WebserviceViewModel extends ViewModel {
 
     protected void observeError(WebserviceRepository<?> repo){
         repo.getError().observeForever(t ->{
-            error.setValue(t);
+            setError(t);
             Log.e("WSVM", "Network repo" + t.getMessage());
         });
     }
@@ -108,7 +108,7 @@ public class WebserviceViewModel extends ViewModel {
         try {
             return addRepo(repo.webservice.getDefaultName(), repo);
         } catch(Exception e){
-            error.setValue(e);
+            setError(e);
             return null;
         }
     }
@@ -196,7 +196,7 @@ public class WebserviceViewModel extends ViewModel {
                 }
             } catch (Exception e) {
                 Log.e("WSVM", e.getMessage());
-                error.setValue(e);
+                setError(e);
                 configured = false;
             }
         }
