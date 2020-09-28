@@ -65,9 +65,13 @@ public class WebserviceViewModel extends ViewModel {
 
     protected void observeError(WebserviceRepository<?> repo){
         repo.getError().observeForever(t ->{
-            setError(t);
+            handleRespositoryError(repo, t);
             Log.e("WSVM", "Network repo" + t.getMessage());
         });
+    }
+
+    protected void handleRespositoryError(WebserviceRepository<?> repo, Throwable t){
+        setError(t);
     }
 
     public void setNetworkAPIURL(String apiBaseURL){
