@@ -66,12 +66,12 @@ public class WebserviceViewModel extends ViewModel {
     protected void observeError(WebserviceRepository<?> repo){
         repo.getError().observeForever(t ->{
             handleRespositoryError(repo, t);
-            Log.e("WSVM", "Network repo" + t.getMessage());
         });
     }
 
     protected void handleRespositoryError(WebserviceRepository<?> repo, Throwable t){
         setError(t);
+        Log.e("WSVM", "Repository error: " + t.getMessage());
     }
 
     public void setNetworkAPIURL(String apiBaseURL){
@@ -80,7 +80,7 @@ public class WebserviceViewModel extends ViewModel {
             networkRepository.setAPIBaseURL(apiBaseURL);
         } catch (Exception e) {
             Log.e("WSVM", e.getMessage());
-            error.setValue(e);
+            setError(e);
             return;
         }
     }
