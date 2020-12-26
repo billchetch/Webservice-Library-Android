@@ -1,1 +1,3 @@
-include ':app', ':webservices', ':utilities'
+include ':app', ':webservices'
+include ':utilities'
+project(':utilities').projectDir=new File('/Users/billthorgerson/Documents/AndroidStudioProjects/Utils/utilities')
