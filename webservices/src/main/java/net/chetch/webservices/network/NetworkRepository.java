@@ -1,8 +1,5 @@
 package net.chetch.webservices.network;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import net.chetch.webservices.DataCache;
 import net.chetch.webservices.DataStore;
 import net.chetch.webservices.Webservice;
@@ -30,5 +27,21 @@ public class NetworkRepository extends WebserviceRepository<INetworkService> {
         }
 
         return (DataStore)entry;
+    }
+
+    public DataStore<ServiceToken> getToken(int serviceID, String clientName){
+        final DataStore<ServiceToken> token = new DataStore<>();
+
+        service.getToken(serviceID, clientName).enqueue(createCallback(token));
+
+        return token;
+    }
+
+    public DataStore<ServiceToken> saveToken(ServiceToken serviceToken){
+        final DataStore<ServiceToken> token = new DataStore<>();
+
+        service.putToken(serviceToken).enqueue(createCallback(token));
+
+        return token;
     }
 }

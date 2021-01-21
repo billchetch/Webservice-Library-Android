@@ -121,11 +121,11 @@ public class WebserviceViewModel extends ViewModel {
         return repos.containsKey(serviceName) ? repos.get(serviceName) : null;
     }
 
-    public void loadData(){
+    public void loadData() throws Exception{
         loadData(null);
     }
 
-    public DataStore loadData(Observer observer){
+    public DataStore loadData(Observer observer) throws Exception{
         loadProgress.reset();
         return loadServices(observer);
     }
@@ -221,5 +221,28 @@ public class WebserviceViewModel extends ViewModel {
 
     public boolean isServicesConfigured(){
         return servicesConfigured;
+    }
+
+    //Ready means that the network repo has loaded and configured all the repo services that this view model uses
+    //and further checks that these services are 'available'
+    public boolean isReady(){
+        boolean ready = isServicesConfigured();
+        if(ready) {
+            for (Map.Entry<String, WebserviceRepository> entry : repos.entrySet()) {
+                if (!entry.getValue().isServiceAvailable()) {
+                    ready = false;
+                    break;
+                }
+            }
+        }
+        return ready;
+    }
+
+    public void pause(){
+        //a hook ... useful sometimes if the model is using a timer
+    }
+
+    public void resume(){
+        //a hook ... useful sometimes if the model is using a timer
     }
 }

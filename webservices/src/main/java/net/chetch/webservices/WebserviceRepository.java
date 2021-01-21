@@ -83,6 +83,10 @@ public class WebserviceRepository<S> implements Observer{
         liveDataError.postValue(t);
     }
 
+    public boolean isServiceAvailable(){
+        return serviceAvailable;
+    }
+
     protected void handleServiceError(Throwable t) {
         if (t instanceof WebserviceException) {
             WebserviceException wsx = ((WebserviceException) t);
