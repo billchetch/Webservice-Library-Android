@@ -4,6 +4,10 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +33,7 @@ public class ConnectManager {
 
     Observer observer;
 
-    int timerDelay = 5;
+    int timerDelay = 2;
     boolean timerStarted = false;
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
@@ -102,13 +106,28 @@ public class ConnectManager {
         return ready;
     }
 
+    protected boolean isConnectionError(Throwable throwable) {
+        if (throwable instanceof SocketTimeoutException ||
+                throwable instanceof ConnectException ||
+                throwable instanceof UnknownHostException ||
+                throwable instanceof SocketException){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    protected void handleModelError(WebserviceViewModel model, Throwable throwable){
+        if (!model.isReady() || isConnectionError(throwable)) {
+            setConnectState(ConnectState.ERROR);
+        }
+    }
 
     public void addModel(WebserviceViewModel model){
         if(!models.contains(model)){
             models.add(model);
             model.getError().observeForever(throwable -> {
-                setConnectState(ConnectState.ERROR);
+                handleModelError(model, throwable);
             });
         }
     }
