@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import android.util.Log;
 
+import net.chetch.utilities.SLog;
 import net.chetch.utilities.Utils;
 import net.chetch.webservices.exceptions.WebserviceException;
 
@@ -144,7 +145,7 @@ public class WebserviceRepository<S> implements Observer{
                 serverTimeDifference = serverTime.getTimeInMillis() + serverTimeTolerance - now.getTimeInMillis();
 
             } catch (Exception e){
-                Log.e("WebserviceRespoitory", "handleResponseHeaders " + e.getMessage());
+                if(SLog.LOG)SLog.e("WebserviceRespoitory", "handleResponseHeaders " + e.getMessage());
             }
         }
     }

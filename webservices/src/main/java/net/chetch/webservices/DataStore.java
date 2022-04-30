@@ -4,6 +4,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import android.util.Log;
 
+import net.chetch.utilities.SLog;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class DataStore<T> {
                     temporary.add(observer);
                 }
             } catch (Exception e){
-                Log.e("DataStore", "notifyObservers: " + e.getMessage() + (data == null ? "" : ", data: " + data.getClass()));
+                if(SLog.LOG)SLog.e("DataStore", "notifyObservers: " + e.getMessage() + (data == null ? "" : ", data: " + data.getClass()));
                 e.printStackTrace();
             }
         }

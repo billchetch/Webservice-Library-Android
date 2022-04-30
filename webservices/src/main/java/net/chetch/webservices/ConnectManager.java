@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 
+import net.chetch.utilities.SLog;
+
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -77,7 +79,7 @@ public class ConnectManager {
         if(!changed)return false;
 
         fromError = isError;
-        Log.i("MAIN", "Current state is " + currentState + " new state is " + newState + " fromError is " + fromError);
+        if(SLog.LOG) SLog.i("MAIN", "Current state is " + currentState + " new state is " + newState + " fromError is " + fromError);
         previousState = currentState;
         currentState = newState;
 

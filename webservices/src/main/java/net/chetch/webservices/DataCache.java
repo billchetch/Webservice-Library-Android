@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
+import net.chetch.utilities.SLog;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +68,7 @@ public class DataCache {
             waitingForData = false;
             dataLastUpdated = System.currentTimeMillis();
 
-            Log.i("CacheEntry", "Updated value for " + key);
+            if(SLog.LOG)SLog.i("CacheEntry", "Updated value for " + key);
         }
 
 

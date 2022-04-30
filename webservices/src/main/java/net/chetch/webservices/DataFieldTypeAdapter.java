@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import net.chetch.utilities.DelegateTypeAdapter;
+import net.chetch.utilities.SLog;
 import net.chetch.utilities.Utils;
 
 import java.io.IOException;
@@ -134,7 +135,7 @@ public class DataFieldTypeAdapter extends DelegateTypeAdapter<DataField> impleme
                             }
                             value = cal;
                         } catch (Exception e) {
-                            Log.e("DFTA", e.getMessage());
+                            if(SLog.LOG)SLog.e("DFTA", e.getMessage());
                             value = valueAsString;
                         }
                     } else {
@@ -181,7 +182,7 @@ public class DataFieldTypeAdapter extends DelegateTypeAdapter<DataField> impleme
                 serverTimeDifference = serverTime.getTimeInMillis() + responseTime - now.getTimeInMillis();
             }
         } catch (Exception e){
-            Log.e("DOTA", e.getMessage());
+            if(SLog.LOG)SLog.e("DOTA", e.getMessage());
         }
 
         return response;

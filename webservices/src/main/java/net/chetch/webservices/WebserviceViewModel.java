@@ -6,6 +6,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import android.util.Log;
 
+import net.chetch.utilities.SLog;
 import net.chetch.webservices.exceptions.WebserviceViewModelException;
 import net.chetch.webservices.network.NetworkRepository;
 import net.chetch.webservices.network.Services;
@@ -71,7 +72,7 @@ public class WebserviceViewModel extends ViewModel {
 
     protected void handleRespositoryError(WebserviceRepository<?> repo, Throwable t){
         setError(t);
-        Log.e("WSVM", "Repository error: " + t.getMessage());
+        if(SLog.LOG) SLog.e("WSVM", "Repository error: " + t.getMessage());
     }
 
     public void setNetworkAPIURL(String apiBaseURL){
@@ -79,7 +80,7 @@ public class WebserviceViewModel extends ViewModel {
             //String apiBaseURL = "http://192.168.43.123:8002/api/";
             networkRepository.setAPIBaseURL(apiBaseURL);
         } catch (Exception e) {
-            Log.e("WSVM", e.getMessage());
+            if(SLog.LOG)SLog.e("WSVM", e.getMessage());
             setError(e);
             return;
         }
@@ -135,7 +136,7 @@ public class WebserviceViewModel extends ViewModel {
             try {
                 observer.onChanged(data);
             } catch (Exception e){
-                Log.e("WSVM", e.getMessage());
+                if(SLog.LOG)SLog.e("WSVM", e.getMessage());
             }
         }
     }
@@ -176,14 +177,14 @@ public class WebserviceViewModel extends ViewModel {
             switch(option){
                 case ERROR:
                     error.setValue(new WebserviceViewModelException(message));
-                    Log.e("WSVM", message);
+                    if(SLog.LOG)SLog.e("WSVM", message);
                     return false;
                 case ADUST:
                     networkRepository.adjustForServerTimeDifference(true);
-                    Log.i("WSVM", message + "... Setting repos to adjust for time difference");
+                    if(SLog.LOG)SLog.i("WSVM", message + "... Setting repos to adjust for time difference");
                     break;
                 case LOG_WARNING:
-                    Log.w("WSVM", message);
+                    if(SLog.LOG)SLog.w("WSVM", message);
                     break;
             }
         }
@@ -199,7 +200,7 @@ public class WebserviceViewModel extends ViewModel {
                     throw new Exception("There is no service with name " + serviceName);
                 }
             } catch (Exception e) {
-                Log.e("WSVM", e.getMessage());
+                if(SLog.LOG)SLog.e("WSVM", e.getMessage());
                 setError(e);
                 configured = false;
             }
@@ -212,9 +213,9 @@ public class WebserviceViewModel extends ViewModel {
             servicesConfigured = configureServices(services);
             if (servicesConfigured) {
                 notifyLoaded(observer, services);
-                Log.i("WSVM", "Network services: " + services.size());
+                if(SLog.LOG)SLog.i("WSVM", "Network services: " + services.size());
             } else {
-                Log.e("WSVM", "Services failed to be configured");
+                if(SLog.LOG)SLog.e("WSVM", "Services failed to be configured");
             }
         });
     }

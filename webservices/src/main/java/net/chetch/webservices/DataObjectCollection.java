@@ -3,6 +3,8 @@ package net.chetch.webservices;
 
 import android.util.Log;
 
+import net.chetch.utilities.SLog;
+
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +38,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
                         return false;
                     }
                 } catch(Exception e){
-                    Log.e("DataObjectCollection", "Matches exception on " + entry.getKey() + " " + e.getMessage());
+                    if(SLog.LOG)SLog.e("DataObjectCollection", "Matches exception on " + entry.getKey() + " " + e.getMessage());
                     return false;
                 }
             }
@@ -68,7 +70,7 @@ abstract public class DataObjectCollection<D extends DataObject> extends ArrayLi
                     }
 
                 } catch (Exception e){
-                    Log.e("DataObjectCollection", "SortOn::compare exception: " + e.getMessage() + " field " + fieldName);
+                    if(SLog.LOG)SLog.e("DataObjectCollection", "SortOn::compare exception: " + e.getMessage() + " field " + fieldName);
                 }
             }
             return comparison;
