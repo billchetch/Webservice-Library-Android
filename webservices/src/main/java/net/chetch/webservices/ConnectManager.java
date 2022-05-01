@@ -34,6 +34,7 @@ public class ConnectManager {
     List<WebserviceViewModel> models = new ArrayList<>();
 
     Observer observer;
+    Throwable lastError;
 
     int timerDelay = 2;
     boolean timerStarted = false;
@@ -96,6 +97,7 @@ public class ConnectManager {
     public boolean fromError(){
         return fromError;
     }
+    public Throwable getLastError(){ return lastError; }
 
     public boolean modelsReady(){
         boolean ready = true;
@@ -121,6 +123,7 @@ public class ConnectManager {
 
     protected void handleModelError(WebserviceViewModel model, Throwable throwable){
         if (!model.isReady() || isConnectionError(throwable)) {
+            lastError = throwable;
             setConnectState(ConnectState.ERROR);
         }
     }
@@ -152,6 +155,7 @@ public class ConnectManager {
                         m.loadData(observer);
                     }
                 } catch (Exception e){
+                    lastError = e;
                     setConnectState(ConnectState.ERROR);
                 }
                 startTimer(timerDelay);
