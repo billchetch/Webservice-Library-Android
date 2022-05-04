@@ -137,11 +137,18 @@ public class ConnectManager {
         }
     }
 
-    public void requestConnect(Observer observer) throws Exception{
+    public void requestConnect(Observer observer, int timerDelay, int postDelay) throws Exception{
         if(models.size() == 0)throw new Exception("No models added!  Connect request doesn't make sense!");
         this.observer = observer;
         setConnectState(currentState == ConnectState.CONNECTED ? ConnectState.RECONNECT_REQUEST : ConnectState.CONNECT_REQUEST);
-        startTimer();
+        startTimer(timerDelay, postDelay);
+    }
+
+    public void requestConnect(Observer observer, int timerDelay) throws Exception{
+        requestConnect(observer, timerDelay, timerDelay);
+    }
+    public void requestConnect(Observer observer) throws Exception{
+        requestConnect(observer, timerDelay);
     }
 
     public int onTimer(){
