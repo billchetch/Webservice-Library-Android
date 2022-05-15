@@ -36,7 +36,7 @@ public class ConnectManager {
     Observer observer;
     Throwable lastError;
 
-    int timerDelay = 2;
+    int timerDelay = 5; //in seconds
     boolean timerStarted = false;
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
@@ -110,7 +110,7 @@ public class ConnectManager {
         return ready;
     }
 
-    protected boolean isConnectionError(Throwable throwable) {
+    public static boolean isConnectionError(Throwable throwable) {
         if (throwable instanceof SocketTimeoutException ||
                 throwable instanceof ConnectException ||
                 throwable instanceof UnknownHostException ||

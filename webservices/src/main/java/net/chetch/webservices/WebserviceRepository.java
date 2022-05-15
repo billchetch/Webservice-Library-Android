@@ -102,6 +102,7 @@ public class WebserviceRepository<S> implements Observer{
                     serviceLastAvailable = Calendar.getInstance();
                     serviceErrorMessage = "Service unreachable due to " + origThrow.getClass().getName();
                     t = new WebserviceException(serviceErrorMessage, serviceErrorCode, t);
+                    (( WebserviceException)t).setRequestURL(wsx.getRequestURL());
                 }
             } else {
                 switch (wsx.getHttpCode()) {
@@ -126,6 +127,9 @@ public class WebserviceRepository<S> implements Observer{
             }
 
         } // end of test if WebserviceException
+        else {
+            if(SLog.LOG)SLog.w("WSR", "WebserviceRepository::handleServiceError handling non WebserviceException exception " + (t == null ?  "[null]" :  t.getClass()));
+        }
 
         setError(t);
     }

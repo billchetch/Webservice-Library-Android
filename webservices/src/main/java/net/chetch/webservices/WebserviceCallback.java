@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer;
 import net.chetch.webservices.exceptions.WebserviceException;
 
 
+import okhttp3.HttpUrl;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -16,6 +17,7 @@ public class WebserviceCallback<T> implements Callback<T> {
         public boolean responseIsSuccessful = false;
         public Headers headers = null;
         public long responseTime = 0;
+        public HttpUrl requestURL = null;
     }
 
     private Throwable lastError;
@@ -38,6 +40,8 @@ public class WebserviceCallback<T> implements Callback<T> {
         callbackInfo.headers = response.headers();
         callbackInfo.responseIsSuccessful = response.isSuccessful();
         callbackInfo.responseTime = response.raw().receivedResponseAtMillis() - response.raw().sentRequestAtMillis();
+        callbackInfo.requestURL = response.raw().request().url();
+
         if(observer != null){
            observer.onChanged(callbackInfo);
         }
@@ -58,6 +62,7 @@ public class WebserviceCallback<T> implements Callback<T> {
         lastError = t;
         if(observer != null){
             WebserviceException wsex = new WebserviceException(t);
+            wsex.setRequestURL(call.request().url());
             wsex.setDataStore(dataStore);
             observer.onChanged(wsex);
         }
@@ -76,6 +81,7 @@ public class WebserviceCallback<T> implements Callback<T> {
     public void handleEmptyResponse(Call<T> call, Response<T> response){
         if(observer != null){
             WebserviceException wsex = new WebserviceException("Empty response body", 0);
+            wsex.setRequestURL(call.request().url());
             wsex.setDataStore(dataStore);
             observer.onChanged(wsex);
         }
