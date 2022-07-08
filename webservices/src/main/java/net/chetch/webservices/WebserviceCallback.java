@@ -62,7 +62,7 @@ public class WebserviceCallback<T> implements Callback<T> {
         lastError = t;
         if(observer != null){
             WebserviceException wsex = new WebserviceException(t);
-            wsex.setRequestURL(call.request().url());
+            wsex.setRequest(call.request());
             wsex.setDataStore(dataStore);
             observer.onChanged(wsex);
         }
@@ -81,7 +81,7 @@ public class WebserviceCallback<T> implements Callback<T> {
     public void handleEmptyResponse(Call<T> call, Response<T> response){
         if(observer != null){
             WebserviceException wsex = new WebserviceException("Empty response body", 0);
-            wsex.setRequestURL(call.request().url());
+            wsex.setRequest(call.request());
             wsex.setDataStore(dataStore);
             observer.onChanged(wsex);
         }
@@ -90,6 +90,7 @@ public class WebserviceCallback<T> implements Callback<T> {
     public void handleError(Call<T> call, Response<T> response){
         if(observer != null){
             WebserviceException wsex = WebserviceException.create(response);
+            wsex.setRequest(call.request());
             wsex.setDataStore(dataStore);
             observer.onChanged(wsex);
         }

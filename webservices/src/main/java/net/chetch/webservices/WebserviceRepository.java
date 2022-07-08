@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import retrofit2.Response;
 
 public class WebserviceRepository<S> implements Observer{
@@ -91,6 +92,7 @@ public class WebserviceRepository<S> implements Observer{
     protected void handleServiceError(Throwable t) {
         if (t instanceof WebserviceException) {
             WebserviceException wsx = ((WebserviceException) t);
+            wsx.setTag(this);
 
             Throwable origThrow = wsx.getThrowable();
             if(origThrow != null){
@@ -102,7 +104,8 @@ public class WebserviceRepository<S> implements Observer{
                     serviceLastAvailable = Calendar.getInstance();
                     serviceErrorMessage = "Service unreachable due to " + origThrow.getClass().getName();
                     t = new WebserviceException(serviceErrorMessage, serviceErrorCode, t);
-                    (( WebserviceException)t).setRequestURL(wsx.getRequestURL());
+                    ((WebserviceException)t).setRequest(wsx.getRequest());
+                    ((WebserviceException)t).setTag(this);
                 }
             } else {
                 switch (wsx.getHttpCode()) {
@@ -196,6 +199,10 @@ public class WebserviceRepository<S> implements Observer{
 
     public String getAPIBaseURL(){
         return webservice.getAPIBaseURL();
+    }
+
+    public String getAPIStub(String url){
+        return webservice.getAPIStub(url);
     }
 
     public <T> WebserviceCallback<T> createCallback(DataStore dataStore){

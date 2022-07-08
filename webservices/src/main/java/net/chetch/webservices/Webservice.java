@@ -81,6 +81,11 @@ public class Webservice<S> implements Interceptor{
     }
 
 
+    public String getAPIStub(String url){
+        String s =  url.substring(getAPIBaseURL().length(), -1);
+        return s;
+    }
+
     public <T> WebserviceCallback<T> createCallback(Observer observer, DataStore<?> dataStore){
         return new WebserviceCallback<T>(observer, dataStore);
     }

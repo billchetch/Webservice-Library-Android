@@ -20,10 +20,10 @@ public class MainViewModel extends WebserviceViewModel {
     //repos (make sure you add them so they can be server configured
     GPSRepository gpsRepository = GPSRepository.getInstance();
     EmployeesRepository employeesRepository = EmployeesRepository.getInstance();
-    CrewRepository crewRepository = CrewRepository.getInstance().getInstance();
-    CaptainsLogRepository logRepository = CaptainsLogRepository.getInstance();
+    CrewRepository crewRepository; // = CrewRepository.getInstance().getInstance();
+    CaptainsLogRepository logRepository; // = CaptainsLogRepository.getInstance();
 
-    MutableLiveData<Employees> liveDataEmployees = new MutableLiveData<>();
+    MutableLiveData<Employees<Employee>> liveDataEmployees = new MutableLiveData<>();
     MutableLiveData<Crew> liveDataCrew = new MutableLiveData<>();
     MutableLiveData<GPSPosition> liveDataGPSPosition = new MutableLiveData<>();
 
@@ -33,7 +33,7 @@ public class MainViewModel extends WebserviceViewModel {
         permissableServerTimeDifference = 1;
         serverTimeDisparityOption = ServerTimeDisparityOptions.LOG_WARNING;
 
-        addRepo(employeesRepository);
+        //addRepo(employeesRepository);
         //addRepo(crewRepository);
         //addRepo(logRepository);
         addRepo(gpsRepository);
@@ -51,7 +51,8 @@ public class MainViewModel extends WebserviceViewModel {
         }
     }
 
-    public LiveData<Employees> getEmployees(){
+    public LiveData<Employees<Employee>> getEmployees(){
+        employeesRepository.getEmployees().add(liveDataEmployees);
         return liveDataEmployees;
     }
 
