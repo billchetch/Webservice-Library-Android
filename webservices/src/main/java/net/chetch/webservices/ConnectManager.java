@@ -192,4 +192,8 @@ public class ConnectManager {
             model.resume();
         }
     }
+
+    public boolean isConnected(){
+        return getState() == ConnectState.CONNECTED;
+    }
 }
