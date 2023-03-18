@@ -137,6 +137,12 @@ public class ConnectManager {
         }
     }
 
+    public void setPermissableServerTimeDifference(int permissableServerTimeDifference){
+        for(WebserviceViewModel m : models){
+            m.setPermissableServerTimeDifference(permissableServerTimeDifference);
+        }
+    }
+
     public void requestConnect(Observer observer, int timerDelay, int postDelay) throws Exception{
         if(models.size() == 0)throw new Exception("No models added!  Connect request doesn't make sense!");
         this.observer = observer;

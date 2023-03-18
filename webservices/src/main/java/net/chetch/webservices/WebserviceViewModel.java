@@ -162,6 +162,10 @@ public class WebserviceViewModel extends ViewModel {
         notifyObserver(observer, loadProgress);
     }
 
+    public void setPermissableServerTimeDifference(int timeDiff) {
+        permissableServerTimeDifference = timeDiff;
+    }
+
     protected ServerTimeDisparityOptions getServerTimeDisparityOption(long serverTimeDifference){
         return serverTimeDisparityOption;
     }
