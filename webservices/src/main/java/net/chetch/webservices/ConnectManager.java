@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import net.chetch.utilities.SLog;
+import net.chetch.webservices.exceptions.WebserviceException;
 
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -111,10 +112,13 @@ public class ConnectManager {
     }
 
     public static boolean isConnectionError(Throwable throwable) {
-        if (throwable instanceof SocketTimeoutException ||
+        if (
+                throwable instanceof WebserviceException ||
+                throwable instanceof SocketTimeoutException ||
                 throwable instanceof ConnectException ||
                 throwable instanceof UnknownHostException ||
-                throwable instanceof SocketException){
+                throwable instanceof SocketException
+        ){
             return true;
         } else {
             return false;
