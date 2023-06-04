@@ -197,7 +197,7 @@ public class ConnectManager {
     }
 
     public void resume(){
-        stopTimer();
+        startTimer();
         for(WebserviceViewModel model : models){
             model.resume();
         }
