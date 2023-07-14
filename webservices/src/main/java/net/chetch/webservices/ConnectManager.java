@@ -13,10 +13,10 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Observable;
 import androidx.lifecycle.Observer;
 
-public class ConnectManager {
+public class ConnectManager extends Observable {
     public enum ConnectState{
         NOT_SET,
         CONNECT_REQUEST,
@@ -34,7 +34,7 @@ public class ConnectManager {
 
     List<WebserviceViewModel> models = new ArrayList<>();
 
-    Observer observer;
+    Observer loadObserver;
     Throwable lastError;
 
     int timerDelay = 5; //in seconds
@@ -85,9 +85,12 @@ public class ConnectManager {
         previousState = currentState;
         currentState = newState;
 
-        if(changed && observer != null){
-            observer.onChanged(this);
-        }
+        loadObserver.onChanged(this);
+
+        //observerable stuff
+        setChanged();
+        notifyObservers(this);
+
         return changed;
     }
 
@@ -149,7 +152,8 @@ public class ConnectManager {
 
     public void requestConnect(Observer observer, int timerDelay, int postDelay) throws Exception{
         if(models.size() == 0)throw new Exception("No models added!  Connect request doesn't make sense!");
-        this.observer = observer;
+        loadObserver = observer;
+
         setConnectState(currentState == ConnectState.CONNECTED ? ConnectState.RECONNECT_REQUEST : ConnectState.CONNECT_REQUEST);
         startTimer(timerDelay, postDelay);
     }
@@ -169,7 +173,7 @@ public class ConnectManager {
                 try {
                     setConnectState(currentState == ConnectState.CONNECT_REQUEST ? ConnectState.CONNECTING : ConnectState.RECONNECTNG);
                     for(WebserviceViewModel m : models) {
-                        m.loadData(observer);
+                        m.loadData(loadObserver);
                     }
                 } catch (Exception e){
                     lastError = e;
