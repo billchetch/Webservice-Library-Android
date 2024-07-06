@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             //String apiBaseURL = "http://192.168.2.188:8001/api/";
-            String apiBaseURL = "http://192.168.1.106:8001/api/";
+            //String apiBaseURL = "http://192.168.1.106:8001/api/";
+            String apiBaseURL = "http://192.168.2.88:8001/api/";
             NetworkRepository.getInstance().setAPIBaseURL(apiBaseURL);
         } catch (Exception e) {
             Log.e("MVM", e.getMessage());
