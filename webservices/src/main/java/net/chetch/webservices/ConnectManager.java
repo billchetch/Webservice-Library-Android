@@ -82,6 +82,10 @@ public class ConnectManager extends Observable {
 
         fromError = isError;
         if(SLog.LOG) SLog.i("MAIN", "Current state is " + currentState + " new state is " + newState + " fromError is " + fromError);
+
+        if(fromError && currentState == ConnectState.CONNECTED){
+            startTimer();
+        }
         previousState = currentState;
         currentState = newState;
 
@@ -186,6 +190,7 @@ public class ConnectManager extends Observable {
             case RECONNECTNG:
                 if(modelsReady()){
                     setConnectState(ConnectState.CONNECTED);
+                    stopTimer();
                 }
                 break;
         }
